@@ -66,12 +66,20 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
     private Principal createPrincipal(SurrogateAuthenticationDto dto) {
         String id = dto.impersonatorData.principalId + UserProfile.SEPARATOR + dto.nationalIdentificationNumber;
         Map<String, Object> attributes = new LinkedHashMap<>();
+        LOGGER.info("Luodaan imperator avaimia: ");
         dto.impersonatorData.principalAttributes.entrySet().stream()
-                .forEach(entry -> attributes.put(impersonatorAttributeKey(entry.getKey()), entry.getValue()));
+                .forEach(entry -> {
+                    LOGGER.info("avain: " + impersonatorAttributeKey(entry.getKey()) + "arvo: " + entry.getValue());
+                    attributes.put(impersonatorAttributeKey(entry.getKey()), entry.getValue());
+                });
         attributes.put(ATTRIBUTE_NAME_NATIONAL_IDENTIFICATION_NUMBER, dto.nationalIdentificationNumber);
         try {
+            LOGGER.info("Haetaan oidia ONR:stä hetulla: " + dto.nationalIdentificationNumber);
             personService.findOidByNationalIdentificationNumber(dto.nationalIdentificationNumber)
-                    .ifPresent(oid -> attributes.put(ATTRIBUTE_NAME_PERSON_OID, oid));
+                    .ifPresent(oid -> {
+                        LOGGER.info("Oid: " + oid +  ", löytyi, lisätään se avaimelle: " + ATTRIBUTE_NAME_PERSON_OID);
+                        attributes.put(ATTRIBUTE_NAME_PERSON_OID, oid);
+                    });
         } catch (Exception e) {
             LOGGER.error("Unable to get oid by national identification number", e);
         }
