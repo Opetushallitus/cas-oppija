@@ -110,7 +110,7 @@ public class SurrogateServiceImpl implements SurrogateService {
         boolean authorized = valtuudetClient.isAuthorizedToPerson(data.requestData.sessionId, accessToken, person.personId);
 
         if (!authorized) {
-            throw new SurrogateNotAllowedException(String.format("User is not allowed to authenticate as %s", person.personId));
+            throw new SurrogateNotAllowedException("Sinulla ei ole oikeutta asioida valitsemasi henkilön puolesta tässä palvelussa. Voit lukea lisää toisen henkilön puolesta asioinnista tällä sivulla: https://www.suomi.fi/ohjeet-ja-tuki/tietoa-valtuuksista/toisen-henkilon-puolesta-asiointi.");
         }
         return new SurrogateAuthenticationDto(data.impersonatorData, person.personId, person.name);
     }
