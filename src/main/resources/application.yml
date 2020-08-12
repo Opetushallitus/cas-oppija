@@ -40,9 +40,9 @@ cas.ticket.registry.cleaner.schedule.enabled: false
 
 server.error.include-stacktrace: never
 
-spring.datasource.url: jdbc:postgresql://localhost:5432/cas-oppija
-spring.datasource.username: cas-oppija
-spring.datasource.password: cas-oppija
+spring.datasource.url: jdbc:postgresql://localhost:5432/casoppija
+spring.datasource.username: app
+spring.datasource.password: ophoph
 spring.datasource.driver-class-name: org.postgresql.Driver
 spring.datasource.platform: postgresql
 
