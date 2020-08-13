@@ -40,9 +40,9 @@ cas.ticket.registry.cleaner.schedule.enabled: false
 
 server.error.include-stacktrace: never
 
-spring.datasource.url: jdbc:postgresql://localhost:5432/cas-oppija
-spring.datasource.username: cas-oppija
-spring.datasource.password: cas-oppija
+spring.datasource.url: jdbc:postgresql://localhost:5432/casoppija
+spring.datasource.username: app
+spring.datasource.password: ophoph
 spring.datasource.driver-class-name: org.postgresql.Driver
 spring.datasource.platform: postgresql
 
@@ -65,3 +65,28 @@ valtuudet.api-key: key
 valtuudet.oauth-password: password
 service-user.username: user
 service-user.password: pass
+
+
+cas.authn.pac4j.saml:
+  - clientName: suomi.fi
+    autoRedirect: true
+    keystorePath: /Users/mkamka/git/wunderdog/oph/cloud-environment-pallero/cas-oppija/keystore.jks
+    keystorePassword: aD1HkwmQHqNPflXErvWRLPVxhMAUIN
+    keystoreAlias: testiopintopolku.fi
+    privateKeyPassword: aD1HkwmQHqNPflXErvWRLPVxhMAUIN
+    serviceProviderEntityId: https://testiopintopolku.fi/cas-oppija
+    serviceProviderMetadataPath: /Users/mkamka/git/wunderdog/oph/cloud-environment-pallero/cas-oppija/sp-metadata.xml
+    identityProviderMetadataPath: /Users/mkamka/git/wunderdog/oph/cloud-environment-pallero/cas-oppija/idp-metadata.xml
+    principalAttributeId: nationalIdentificationNumber
+    requestedAttributes:
+      - name: urn:oid:1.2.246.21
+        friendlyName: nationalIdentificationNumber
+        nameFormat: urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        required: true
+      - name: urn:oid:2.5.4.3
+        friendlyName: cn
+        nameFormat: urn:oasis:names:tc:SAML:2.0:attrname-format:uri
+        required: true
+    mappedAttributes:
+      - name: urn:oid:2.5.4.3
+        mappedTo: personName
