@@ -43,3 +43,4 @@ To utilize other OPH services from test environment, add following to run comman
 
 Note that `baseUrl` parameter cannot be used with yml file!
 (See [java-utils/java-properties](https://github.com/Opetushallitus/java-utils/tree/master/java-properties)).
+
