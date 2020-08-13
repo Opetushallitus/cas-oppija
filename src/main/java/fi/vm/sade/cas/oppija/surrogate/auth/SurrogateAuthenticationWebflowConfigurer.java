@@ -46,6 +46,7 @@ public class SurrogateAuthenticationWebflowConfigurer extends AbstractCasWebflow
         DecisionState decisionState = super.createDecisionState(loginFlow, STATE_ID_SURROGATE_DECISION, decision,
                 STATE_ID_SURROGATE_ACTION, originalStartState.getId());
         loginFlow.setStartState(decisionState);
+
         ActionState actionState = super.createActionState(loginFlow, STATE_ID_SURROGATE_ACTION, surrogateAuthenticationAction);
         super.createTransitionForState(actionState, CasWebflowConstants.TRANSITION_ID_SUCCESS,
                 CasWebflowConstants.STATE_ID_CREATE_TICKET_GRANTING_TICKET);

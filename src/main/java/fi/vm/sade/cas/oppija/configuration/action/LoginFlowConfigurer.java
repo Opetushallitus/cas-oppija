@@ -5,10 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
-import org.springframework.webflow.engine.ActionList;
-import org.springframework.webflow.engine.ActionState;
-import org.springframework.webflow.engine.TransitionSet;
-import org.springframework.webflow.engine.Flow;
+import org.springframework.webflow.engine.*;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
 public class LoginFlowConfigurer extends AbstractCasWebflowConfigurer {
@@ -27,8 +24,9 @@ public class LoginFlowConfigurer extends AbstractCasWebflowConfigurer {
         if(super.containsFlowState(loginFlow, CasWebflowConstants.STATE_ID_HANDLE_AUTHN_FAILURE)) {
             ActionState state = super.getState(loginFlow, CasWebflowConstants.STATE_ID_HANDLE_AUTHN_FAILURE, ActionState.class);
             ActionList entryActionList = state.getEntryActionList();
-            TransitionSet ts = state.getTransitionSet();
+            super.createTransitionForState(state, "SurrogateNotAllowedException", "hopophop");
             //ts.toArray()[9].setExecutionCriteria();
+            TransitionSet ts = state.getTransitionSet();
             f = f + "1";
             //state.add({ requestContext ->
              //       def flowScope = requestContext.flowScope
