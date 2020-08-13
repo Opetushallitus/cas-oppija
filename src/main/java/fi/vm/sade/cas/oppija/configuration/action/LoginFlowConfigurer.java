@@ -24,7 +24,7 @@ public class LoginFlowConfigurer extends AbstractCasWebflowConfigurer {
         if(super.containsFlowState(loginFlow, CasWebflowConstants.STATE_ID_HANDLE_AUTHN_FAILURE)) {
             ActionState state = super.getState(loginFlow, CasWebflowConstants.STATE_ID_HANDLE_AUTHN_FAILURE, ActionState.class);
             ActionList entryActionList = state.getEntryActionList();
-            super.createTransitionForState(state, "SurrogateNotAllowedException", "hopophop");
+            Transition t = super.createTransitionForState(state, "SurrogateNotAllowedException", "hopophop");
             //ts.toArray()[9].setExecutionCriteria();
             TransitionSet ts = state.getTransitionSet();
             f = f + "1";

@@ -4,6 +4,7 @@ import fi.vm.sade.cas.oppija.service.PersonService;
 import fi.vm.sade.cas.oppija.surrogate.SurrogateAuthenticationDto;
 import fi.vm.sade.cas.oppija.surrogate.SurrogateCredential;
 import fi.vm.sade.cas.oppija.surrogate.SurrogateService;
+import fi.vm.sade.cas.oppija.surrogate.exception.SurrogateNotAllowedException;
 import org.apereo.cas.authentication.*;
 import org.apereo.cas.authentication.metadata.BasicCredentialMetaData;
 import org.apereo.cas.authentication.principal.Principal;
@@ -56,6 +57,9 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
             credential.setAuthenticationAttributes(dto.impersonatorData.authenticationAttributes);
             return createHandlerResult(credential, createPrincipal(dto));
         } catch (GeneralSecurityException e) {
+            LOGGER.warn(e.getMessage());
+            throw e;
+        } catch (SurrogateNotAllowedException e) {
             LOGGER.warn(e.getMessage());
             throw e;
         } catch (Exception e) {
