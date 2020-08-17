@@ -3,7 +3,7 @@ package fi.vm.sade.cas.oppija.configuration.action;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
-import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
+import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.saml.profile.SAML2Profile;
 import org.springframework.webflow.action.AbstractAction;
@@ -11,6 +11,7 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 import static fi.vm.sade.cas.oppija.CasOppijaConstants.AUTHENTICATION_ATTRIBUTE_CLIENT_PRINCIPAL_ID;
@@ -67,7 +68,7 @@ public class SamlLogoutPrepareAction extends AbstractAction {
         return ticketGrantingTicketCookieGenerator.retrieveCookieValue(request);
     }
 
-    protected static Map<String, Object> transformAttributes(Map<String, Object> attributes) {
+    protected static Map<String, Object> transformAttributes(Map<String, List<Object>> attributes) {
         // cas stores attribute value as list but pac4j expects them mostly be single item
         return attributes.entrySet().stream()
                 .collect(toMap(Map.Entry::getKey, e -> firstElement(e.getValue()).orElse(null)));

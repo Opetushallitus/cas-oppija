@@ -81,8 +81,8 @@ dependencies {
     compile "com.github.kagkarlsson:db-scheduler:6.2"
     compile "org.flywaydb:flyway-core:5.2.4"
     compile "org.opensaml:opensaml-core:3.4.0"
-    compile "org.pac4j:pac4j-core:3.6.1"
-    compile("org.pac4j:pac4j-saml:3.6.1") {
+    compile "org.pac4j:pac4j-core:4.0.0-RC1"
+    compile("org.pac4j:pac4j-saml:4.0.0-RC1") {
         exclude(group: "ch.qos.logback", module: "logback-classic")
     }
     compile "org.postgresql:postgresql:42.2.5"

@@ -17,6 +17,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.webflow.execution.RequestContext;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -53,8 +54,8 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
 
     private InterruptResponse inquire(Authentication authentication, Service service, String language) {
         Principal principal = authentication.getPrincipal();
-        Map<String, Object> principalAttributes = principal.getAttributes();
-        Map<String, Object> authenticationAttributes = authentication.getAttributes();
+        Map<String, List<Object>> principalAttributes = principal.getAttributes();
+        Map<String, List<Object>> authenticationAttributes = authentication.getAttributes();
 
         String nationalIdentificationNumber = resolveAttribute(principalAttributes,
                 ATTRIBUTE_NAME_NATIONAL_IDENTIFICATION_NUMBER, String.class)

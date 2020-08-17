@@ -1,8 +1,8 @@
 package fi.vm.sade.cas.oppija.surrogate.exception;
 
-import org.apereo.cas.authentication.adaptive.UnauthorizedAuthenticationException;
+import javax.security.auth.login.LoginException;
 
-public class SurrogateNotAllowedException extends UnauthorizedAuthenticationException {
+public class SurrogateNotAllowedException extends LoginException {
 
     public SurrogateNotAllowedException(String msg) {
         super(msg);

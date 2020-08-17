@@ -33,7 +33,7 @@ public class RegisteredServiceConfiguration {
     }
 
     private static class CasOppijaAttributeReleasePolicy extends ReturnAllAttributeReleasePolicy {
-
+        /* TODO???
         @Override
         protected Map<String, Object> returnFinalAttributesCollection(Map<String, Object> attributesToRelease, RegisteredService service) {
             // pac4j adds session index to principal attributes (should be only in auth attrs), fixed in pac4j 4.0
@@ -43,6 +43,8 @@ public class RegisteredServiceConfiguration {
             attributesToRelease.entrySet().removeIf(entry -> entry.getKey().contains(":"));
             return attributesToRelease;
         }
+
+         */
 
     }
 

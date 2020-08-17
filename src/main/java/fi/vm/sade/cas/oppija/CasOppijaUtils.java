@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -14,7 +15,7 @@ public final class CasOppijaUtils {
     private CasOppijaUtils() {
     }
 
-    public static <T> Optional<T> resolveAttribute(Map<String, Object> attributes, String attributeName, Class<T> type) {
+    public static <T> Optional<T> resolveAttribute(Map<String, List<Object>> attributes, String attributeName, Class<T> type) {
         Object attribute = attributes.get(attributeName);
         if (attribute == null) {
             return Optional.empty();

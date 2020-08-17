@@ -12,7 +12,7 @@ import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.web.support.ArgumentExtractor;
-import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
+import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 import static fi.vm.sade.cas.oppija.controller.ControllerUtils.wrapExceptionToApplicationException;
@@ -44,11 +45,11 @@ public class UserController {
     }
 
     @GetMapping(value = "/current/attributes", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, Object> getAttributes(HttpServletRequest request) {
+    public Map<String, List<Object>> getAttributes(HttpServletRequest request) {
         return wrapExceptionToApplicationException(() -> getAttributesInternal(request));
     }
 
-    private Map<String, Object> getAttributesInternal(HttpServletRequest request) {
+    private Map<String, List<Object>> getAttributesInternal(HttpServletRequest request) {
         Principal principal = getPrincipal(request);
         Service service = getService(request);
         RegisteredService registeredService = getRegisteredService(service);

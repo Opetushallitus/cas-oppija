@@ -9,12 +9,13 @@ import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.Pac4jBaseClientProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactory;
-import org.apereo.cas.support.pac4j.authentication.handler.support.ClientAuthenticationHandler;
+import org.apereo.cas.support.pac4j.authentication.handler.support.*;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.logout.handler.LogoutHandler;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.saml.client.SAML2Client;
@@ -63,11 +64,11 @@ public class SamlClientConfiguration {
         }
 
         @Override
-        public Principal createPrincipal(String id, Map<String, Object> attributes) {
+        public Principal createPrincipal(String id, Map<String, List<Object>> attributes) {
             try {
                 resolveNationalIdentificationNumber(attributes)
                         .flatMap(this::findOidByNationalIdentificationNumber)
-                        .ifPresent((String oid) -> attributes.put(ATTRIBUTE_NAME_PERSON_OID, oid));
+                        .ifPresent((String oid) -> attributes.put(ATTRIBUTE_NAME_PERSON_OID, Arrays.asList(oid)));
             } catch (Exception e) {
                 LOGGER.error("Unable to get oid by national identification number", e);
             }
@@ -75,7 +76,7 @@ public class SamlClientConfiguration {
             return principalFactory.createPrincipal(id, attributes);
         }
 
-        private Optional<String> resolveNationalIdentificationNumber(Map<String, Object> attributes) {
+        private Optional<String> resolveNationalIdentificationNumber(Map<String, List<Object>> attributes) {
             return resolveAttribute(attributes, ATTRIBUTE_NAME_NATIONAL_IDENTIFICATION_NUMBER, String.class);
         }
 
@@ -85,7 +86,7 @@ public class SamlClientConfiguration {
 
     }
 
-    // override bean Pac4jAuthenticationEventExecutionPlanConfiguration#clientAuthenticationHandler
+    /* TODO override bean Pac4jAuthenticationEventExecutionPlanConfiguration#clientAuthenticationHandler
     @Bean
     public AuthenticationHandler clientAuthenticationHandler(ObjectProvider<ServicesManager> servicesManager,
                                                              PersonService personService,
@@ -104,23 +105,25 @@ public class SamlClientConfiguration {
         return h;
     }
 
+    */
+
     @Bean
     public DelegatedClientFactory pac4jDelegatedClientFactory() {
-        DelegatedClientFactory delegatedClientFactory = new DelegatedClientFactory(casProperties.getAuthn().getPac4j()) {
-            @Override
-            protected void configureClient(BaseClient client, Pac4jBaseClientProperties props) {
-                super.configureClient(client, props);
-                Map<String, String> customProperties = casProperties.getCustom().getProperties();
-                if (client instanceof SAML2Client && Objects.equals(customProperties.get("suomiFiClientName"), client.getName())) {
-                    SAML2Client saml2Client = (SAML2Client) client;
-                    SAML2Configuration configuration = saml2Client.getConfiguration();
-                    configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
-                    configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
-                    configuration.setLogoutHandler(new LogoutHandler() {});
-                    configuration.setAuthnRequestExtensions(createExtensions());
-                }
+        DelegatedClientFactory delegatedClientFactory = new DelegatedClientFactory(casProperties);
+        delegatedClientFactory.build();
+        Collection<IndirectClient> clients = delegatedClientFactory.build();
+
+        Map<String, String> customProperties = casProperties.getCustom().getProperties();
+        for(IndirectClient client : clients) {
+            if (client instanceof SAML2Client && Objects.equals(customProperties.get("suomiFiClientName"), client.getName())) {
+                SAML2Client saml2Client = (SAML2Client) client;
+                SAML2Configuration configuration = saml2Client.getConfiguration();
+                configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+                configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+                configuration.setLogoutHandler(new LogoutHandler() {});
+                configuration.setAuthnRequestExtensions(createExtensions());
             }
-        };
+        }
         return delegatedClientFactory;
     }
 

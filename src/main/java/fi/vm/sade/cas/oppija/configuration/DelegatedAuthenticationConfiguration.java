@@ -16,15 +16,16 @@ import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.apereo.cas.web.flow.configurer.DefaultLogoutWebflowConfigurer;
 import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
-import org.apereo.cas.web.pac4j.DelegatedSessionCookieManager;
-import org.apereo.cas.web.support.CookieRetrievingCookieGenerator;
+import org.apereo.cas.web.support.ArgumentExtractor;
+import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.HttpConstants;
-import org.pac4j.core.context.J2EContext;
+import org.pac4j.core.context.JEEContext;
+import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.exception.HttpAction;
+import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.core.profile.CommonProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,7 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 import org.springframework.webflow.execution.RequestContextHolder;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
@@ -62,7 +64,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
     private final FlowDefinitionRegistry logoutFlowDefinitionRegistry;
-    private final Action saml2ClientLogoutAction;
+    // private final Action saml2ClientLogoutAction; // TODO
     private final ApplicationContext applicationContext;
     private final CasConfigurationProperties casProperties;
     private final CasDelegatingWebflowEventResolver initialAuthenticationAttemptWebflowEventResolver;
@@ -72,18 +74,20 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
     private final ServicesManager servicesManager;
     private final AuditableExecution registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer;
     private final DelegatedClientWebflowManager delegatedClientWebflowManager;
-    private final DelegatedSessionCookieManager delegatedSessionCookieManager;
     private final AuthenticationSystemSupport authenticationSystemSupport;
     private final AuthenticationServiceSelectionPlan authenticationRequestServiceSelectionStrategies;
     private final CentralAuthenticationService centralAuthenticationService;
     private final CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
     private final TicketRegistrySupport ticketRegistrySupport;
     private final Clients clients;
+    private final SingleSignOnParticipationStrategy singleSignOnParticipationStrategy;
+    private final SessionStore<JEEContext> sessionStore;
+    private final List<ArgumentExtractor> argumentExtractors;
 
     public DelegatedAuthenticationConfiguration(FlowBuilderServices flowBuilderServices,
                                                 @Qualifier("loginFlowRegistry") FlowDefinitionRegistry loginFlowDefinitionRegistry,
                                                 @Qualifier("logoutFlowRegistry") FlowDefinitionRegistry logoutFlowDefinitionRegistry,
-                                                Action saml2ClientLogoutAction,
+                                                // Action saml2ClientLogoutAction,
                                                 ApplicationContext applicationContext,
                                                 CasConfigurationProperties casProperties,
                                                 CasDelegatingWebflowEventResolver initialAuthenticationAttemptWebflowEventResolver,
@@ -93,17 +97,19 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                                                 ServicesManager servicesManager,
                                                 AuditableExecution registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer,
                                                 DelegatedClientWebflowManager delegatedClientWebflowManager,
-                                                DelegatedSessionCookieManager delegatedSessionCookieManager,
                                                 AuthenticationSystemSupport authenticationSystemSupport,
                                                 AuthenticationServiceSelectionPlan authenticationRequestServiceSelectionStrategies,
                                                 CentralAuthenticationService centralAuthenticationService,
-                                                @Qualifier("ticketGrantingTicketCookieGenerator") CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator,
+                                                SingleSignOnParticipationStrategy singleSignOnParticipationStrategy,
+                                                SessionStore<JEEContext> sessionStore,
+                                                List<ArgumentExtractor> argumentExtractors,
+                                                @Qualifier("ticketGrantingTicketCookieGenerator") CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator, // TODO
                                                 TicketRegistrySupport ticketRegistrySupport,
                                                 Clients clients) {
         this.flowBuilderServices = flowBuilderServices;
         this.loginFlowDefinitionRegistry = loginFlowDefinitionRegistry;
         this.logoutFlowDefinitionRegistry = logoutFlowDefinitionRegistry;
-        this.saml2ClientLogoutAction = saml2ClientLogoutAction;
+        // this.saml2ClientLogoutAction = saml2ClientLogoutAction;
         this.applicationContext = applicationContext;
         this.casProperties = casProperties;
         this.initialAuthenticationAttemptWebflowEventResolver = initialAuthenticationAttemptWebflowEventResolver;
@@ -113,20 +119,22 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         this.servicesManager = servicesManager;
         this.registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer = registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer;
         this.delegatedClientWebflowManager = delegatedClientWebflowManager;
-        this.delegatedSessionCookieManager = delegatedSessionCookieManager;
         this.authenticationSystemSupport = authenticationSystemSupport;
         this.authenticationRequestServiceSelectionStrategies = authenticationRequestServiceSelectionStrategies;
         this.centralAuthenticationService = centralAuthenticationService;
         this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
         this.ticketRegistrySupport = ticketRegistrySupport;
         this.clients = clients;
+        this.singleSignOnParticipationStrategy = singleSignOnParticipationStrategy;
+        this.sessionStore = sessionStore;
+        this.argumentExtractors = argumentExtractors;
     }
 
     @Override
     public void configureWebflowExecutionPlan(CasWebflowExecutionPlan plan) {
         // this is from default delegatedAuthenticationWebflowConfigurer bean:
         plan.registerWebflowConfigurer(new DelegatedAuthenticationWebflowConfigurer(flowBuilderServices,
-                loginFlowDefinitionRegistry, logoutFlowDefinitionRegistry, saml2ClientLogoutAction, applicationContext,
+                loginFlowDefinitionRegistry, logoutFlowDefinitionRegistry, applicationContext,
                 casProperties));
 
         plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
@@ -151,8 +159,8 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 setLogoutFlowDefinitionRegistry(DelegatedAuthenticationConfiguration.this.logoutFlowDefinitionRegistry);
                 TransitionableState startState = getStartState(getLogoutFlow());
                 ActionState singleLogoutPrepareAction = createActionState(getLogoutFlow(), "samlLogoutPrepareAction",
-                        new SamlLogoutPrepareAction(ticketGrantingTicketCookieGenerator, ticketRegistrySupport));
-                createStateDefaultTransition(singleLogoutPrepareAction, startState.getId());
+                  new SamlLogoutPrepareAction(ticketGrantingTicketCookieGenerator, ticketRegistrySupport));
+                 createStateDefaultTransition(singleLogoutPrepareAction, startState.getId());
                 setStartState(getLogoutFlow(), singleLogoutPrepareAction);
                 DecisionState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT, DecisionState.class);
                 ActionList entryActionList = finishLogoutState.getEntryActionList();
@@ -207,12 +215,13 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 servicesManager,
                 registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer,
                 delegatedClientWebflowManager,
-                delegatedSessionCookieManager,
                 authenticationSystemSupport,
-                casProperties.getLocale().getParamName(),
-                casProperties.getTheme().getParamName(),
+                casProperties,
                 authenticationRequestServiceSelectionStrategies,
-                centralAuthenticationService) {
+                centralAuthenticationService,
+                singleSignOnParticipationStrategy,
+                sessionStore,
+                argumentExtractors) {
             @Override
             public Event doExecute(RequestContext context) {
                 try {
@@ -221,9 +230,9 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                     return result(CasWebflowConstants.TRANSITION_ID_CANCEL);
                 }
             }
-
+            /* TODO ???
             @Override
-            protected Event handleException(J2EContext webContext, BaseClient<Credentials, CommonProfile> client, Exception e) {
+            protected Event handleException(JEEContext webContext, BaseClient<Credentials, CommonProfile> client, Exception e) {
                 if (e instanceof HttpAction) {
                     return handleLogout((HttpAction) e, RequestContextHolder.getRequestContext(), webContext);
                 }
@@ -240,6 +249,8 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                         throw new IllegalArgumentException("Unhandled logout response code: " + httpAction.getCode());
                 }
             }
+
+             */
         };
     }
 
