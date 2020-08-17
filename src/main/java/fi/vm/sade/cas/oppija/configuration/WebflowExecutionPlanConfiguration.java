@@ -12,17 +12,25 @@ import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.TicketFactory;
 import org.apereo.cas.ticket.registry.TicketRegistry;
-import org.apereo.cas.web.flow.CasWebflowConfigurer;
-import org.apereo.cas.web.flow.CasWebflowExecutionPlan;
-import org.apereo.cas.web.flow.CasWebflowExecutionPlanConfigurer;
-import org.apereo.cas.web.flow.SingleSignOnParticipationStrategy;
-import org.apereo.cas.web.flow.configurer.DefaultLogoutWebflowConfigurer;
+import org.apereo.cas.util.CollectionUtils;
+import org.apereo.cas.ticket.registry.TicketRegistrySupport;
+import org.apereo.cas.web.DelegatedClientNavigationController;
+import org.apereo.cas.web.DelegatedClientWebflowManager;
+import org.apereo.cas.web.cookie.CookieGenerationContext;
+import org.apereo.cas.web.flow.*;
 import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.support.ArgumentExtractor;
+import org.apereo.cas.web.support.WebUtils;
 import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
+import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.context.HttpConstants;
+import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.session.SessionStore;
+import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.exception.http.HttpAction;
+import org.pac4j.core.profile.CommonProfile;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -32,105 +40,166 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
+import org.springframework.webflow.execution.Action;
+import org.springframework.webflow.execution.Event;
+import org.springframework.webflow.execution.RequestContext;
+import org.springframework.webflow.execution.RequestContextHolder;
 
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 public class WebflowExecutionPlanConfiguration implements CasWebflowExecutionPlanConfigurer {
-    @Autowired
-    @Qualifier("ticketGrantingTicketCookieGenerator")
-    CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+
+
+    private static final String TRANSITION_ID_LOGOUT = "logout";
 
     @Autowired
     @Qualifier("singleSignOnParticipationStrategy")
-    private ObjectProvider<SingleSignOnParticipationStrategy> webflowSingleSignOnParticipationStrategy;
-
-    @Autowired
-    @Qualifier("defaultTicketFactory")
-    private ObjectProvider<TicketFactory> ticketFactory;
-
-    @Autowired
-    @Qualifier("authenticationServiceSelectionPlan")
-    private ObjectProvider<AuthenticationServiceSelectionPlan> authenticationRequestServiceSelectionStrategies;
-
-    @Autowired
-    @Qualifier("registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer")
-    private ObjectProvider<AuditableExecution> registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer;
-
-    @Autowired
-    @Qualifier("builtClients")
-    private ObjectProvider<Clients> builtClients;
-
-    @Autowired
-    @Qualifier("servicesManager")
-    private ObjectProvider<ServicesManager> servicesManager;
-
-    @Autowired
-    @Qualifier("ticketRegistry")
-    private ObjectProvider<TicketRegistry> ticketRegistry;
-
-    @Autowired
-    private CasConfigurationProperties casProperties;
-
-    @Autowired
-    @Qualifier("centralAuthenticationService")
-    private ObjectProvider<CentralAuthenticationService> centralAuthenticationService;
-
-    @Autowired
-    @Qualifier("defaultAuthenticationSystemSupport")
-    private ObjectProvider<AuthenticationSystemSupport> authenticationSystemSupport;
-
-    @Autowired
-    @Qualifier("shibboleth.OpenSAMLConfig")
-    private ObjectProvider<OpenSamlConfigBean> configBean;
+    private SingleSignOnParticipationStrategy webflowSingleSignOnParticipationStrategy;
 
     @Autowired
     @Qualifier("loginFlowRegistry")
-    private ObjectProvider<FlowDefinitionRegistry> loginFlowDefinitionRegistry;
+    private FlowDefinitionRegistry loginFlowDefinitionRegistry;
 
     @Autowired
-    private ObjectProvider<FlowBuilderServices> flowBuilderServices;
+    private FlowBuilderServices flowBuilderServices;
 
     @Autowired
     private ApplicationContext applicationContext;
 
     @Autowired
-    @Qualifier("delegatedClientDistributedSessionStore")
-    private ObjectProvider<SessionStore> delegatedClientDistributedSessionStore;
+    private CasConfigurationProperties casProperties;
 
     @Autowired
-    @Qualifier("argumentExtractor")
-    private ObjectProvider<ArgumentExtractor> argumentExtractor;
+    @Qualifier("builtClients")
+    private Clients builtClients;
+
+    @Autowired
+    @Qualifier("defaultTicketRegistrySupport")
+    private TicketRegistrySupport ticketRegistrySupport;
+
+    @Autowired
+    @Qualifier("authenticationServiceSelectionPlan")
+    private AuthenticationServiceSelectionPlan authenticationRequestServiceSelectionStrategies;
+
+    @Autowired
+    @Qualifier("registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer")
+    private AuditableExecution registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer;
+
+    @Autowired
+    @Qualifier("servicesManager")
+    private ServicesManager servicesManager;
+
+    @Autowired
+    @Qualifier("centralAuthenticationService")
+    private CentralAuthenticationService centralAuthenticationService;
+
+    @Autowired
+    @Qualifier("defaultAuthenticationSystemSupport")
+    private AuthenticationSystemSupport authenticationSystemSupport;
 
     @Autowired
     @Qualifier("adaptiveAuthenticationPolicy")
-    private ObjectProvider<AdaptiveAuthenticationPolicy> adaptiveAuthenticationPolicy;
+    private AdaptiveAuthenticationPolicy adaptiveAuthenticationPolicy;
 
     @Autowired
     @Qualifier("serviceTicketRequestWebflowEventResolver")
-    private ObjectProvider<CasWebflowEventResolver> serviceTicketRequestWebflowEventResolver;
+    private CasWebflowEventResolver serviceTicketRequestWebflowEventResolver;
 
     @Autowired
     @Qualifier("initialAuthenticationAttemptWebflowEventResolver")
-    private ObjectProvider<CasDelegatingWebflowEventResolver> initialAuthenticationAttemptWebflowEventResolver;
+    private CasDelegatingWebflowEventResolver initialAuthenticationAttemptWebflowEventResolver;
 
     @Autowired
-    @Qualifier("logoutFlowRegistry")
-    private ObjectProvider<FlowDefinitionRegistry> logoutFlowDefinitionRegistry;
+    @Qualifier("delegatedClientDistributedSessionStore")
+    private SessionStore delegatedClientDistributedSessionStore;
 
     @Autowired
-    @Qualifier("conventionErrorViewResolver")
-    private ObjectProvider<ErrorViewResolver> conventionErrorViewResolver;
+    @Qualifier("argumentExtractor")
+    private ArgumentExtractor argumentExtractor;
 
+    @Autowired
+    @Qualifier("ticketRegistry")
+    private TicketRegistry ticketRegistry;
+
+    @Autowired
+    @Qualifier("defaultTicketFactory")
+    private TicketFactory ticketFactory;
+
+    @Bean
+    public CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator() {
+        CookieGenerationContext context = CookieGenerationContext.EMPTY; // TODO ???
+        return new CookieRetrievingCookieGenerator(context);
+    }
 
     @Bean
     public CasWebflowConfigurer loginFlowConfigurer() {
         return new LoginFlowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry,
-                applicationContext, casProperties, builtClients);
+                applicationContext, casProperties, ticketRegistrySupport, builtClients);
     }
     @Bean
     public CasWebflowConfigurer logoutFlowConfigurer() {
         return new LogoutFlowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry,
                 applicationContext, casProperties);
+    }
+
+    @Bean
+    public DelegatedClientWebflowManager delegatedClientWebflowManager() {
+        return new DelegatedClientWebflowManager(ticketRegistry,
+                ticketFactory,
+                casProperties,
+                authenticationRequestServiceSelectionStrategies,
+                argumentExtractor
+        );
+    }
+
+    @Bean
+    public Action delegatedAuthenticationAction() {
+        return new DelegatedClientAuthenticationAction(
+                initialAuthenticationAttemptWebflowEventResolver,
+                serviceTicketRequestWebflowEventResolver,
+                adaptiveAuthenticationPolicy,
+                builtClients,
+                servicesManager,
+                registeredServiceDelegatedAuthenticationPolicyAuditableEnforcer,
+                delegatedClientWebflowManager(),
+                authenticationSystemSupport,
+                casProperties,
+                authenticationRequestServiceSelectionStrategies,
+                centralAuthenticationService,
+                webflowSingleSignOnParticipationStrategy,
+                delegatedClientDistributedSessionStore,
+                CollectionUtils.wrap(argumentExtractor))
+        {
+            @Override
+            public Event doExecute(RequestContext context) {
+                try {
+                    return super.doExecute(context);
+                } catch (Exception e) {
+                    return result(CasWebflowConstants.TRANSITION_ID_CANCEL);
+                }
+            }
+            /* TODO ??
+            @Override
+            protected Event handleException(JEEContext webContext, BaseClient<Credentials, CommonProfile> client, Exception e) {
+                if (e instanceof HttpAction) {
+                    return handleLogout((HttpAction) e, RequestContextHolder.getRequestContext(), webContext);
+                }
+                return super.handleException(webContext, client, e);
+            }
+
+            private Event handleLogout(HttpAction httpAction, RequestContext requestContext, JEEContext webContext) {
+                switch (httpAction.getCode()) {
+                    case HttpConstants.TEMPORARY_REDIRECT:
+                        String redirectUrl = webContext.getResponse().getHeader(HttpConstants.LOCATION_HEADER);
+                        WebUtils.putLogoutRedirectUrl(requestContext, redirectUrl);
+                        return result(TRANSITION_ID_LOGOUT);
+                    default:
+                        throw new IllegalArgumentException("Unhandled logout response code: " + httpAction.getCode());
+                }
+            }
+*/
+
+    };
     }
 
 

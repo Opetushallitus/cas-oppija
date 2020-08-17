@@ -1,7 +1,12 @@
 package fi.vm.sade.cas.oppija.configuration.action;
 
+import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
 import org.apereo.cas.web.flow.CasWebflowConstants;
+import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
+import org.pac4j.core.client.Clients;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
@@ -10,16 +15,31 @@ import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.*;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
-public class LoginFlowConfigurer extends AbstractCasWebflowConfigurer {
+import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 
+import static java.util.stream.Collectors.toList;
+
+public class LoginFlowConfigurer extends AbstractCasWebflowConfigurer {
+    @Autowired
+    CookieRetrievingCookieGenerator oppijaCookieRetrievingCookieGenerator;
 
     private static final String TRANSITION_ID_LOGOUT = "logout";
 
+    private final TicketRegistrySupport ticketRegistrySupport;
+    private final Clients builtClients;
+
     public LoginFlowConfigurer(final FlowBuilderServices flowBuilderServices,
-                                      final FlowDefinitionRegistry loginFlowDefinitionRegistry,
-                                      final ApplicationContext applicationContext,
-                                      final CasConfigurationProperties casProperties) {
+                               final FlowDefinitionRegistry loginFlowDefinitionRegistry,
+                               final ApplicationContext applicationContext,
+                               final CasConfigurationProperties casProperties,
+                               final TicketRegistrySupport ticketRegistrySupport,
+                               final Clients builtClients
+
+    ) {
         super(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties);
+        this.ticketRegistrySupport = ticketRegistrySupport;
+        this.builtClients = builtClients;
     }
 
     @Override
@@ -61,14 +81,18 @@ public class LoginFlowConfigurer extends AbstractCasWebflowConfigurer {
         setLogoutFlowDefinitionRegistry(super.logoutFlowDefinitionRegistry);
         TransitionableState startState = getStartState(getLogoutFlow());
         ActionState singleLogoutPrepareAction = createActionState(getLogoutFlow(), "samlLogoutPrepareAction",
-                new SamlLogoutPrepareAction(ticketGrantingTicketCookieGenerator, ticketRegistrySupport));
+                new SamlLogoutPrepareAction(oppijaCookieRetrievingCookieGenerator, ticketRegistrySupport));
         createStateDefaultTransition(singleLogoutPrepareAction, startState.getId());
         setStartState(getLogoutFlow(), singleLogoutPrepareAction);
         DecisionState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT, DecisionState.class);
         ActionList entryActionList = finishLogoutState.getEntryActionList();
         clear(entryActionList, entryActionList::remove);
-        entryActionList.add(new SamlLogoutExecuteAction(clients));
+        entryActionList.add(new SamlLogoutExecuteAction(builtClients)); // clients vs builtClients
 
 
+    }
+
+    private static <E, T extends Iterable<E>> void clear(T iterable, Consumer<E> remover) {
+        StreamSupport.stream(iterable.spliterator(), false).collect(toList()).forEach(remover::accept);
     }
 }
