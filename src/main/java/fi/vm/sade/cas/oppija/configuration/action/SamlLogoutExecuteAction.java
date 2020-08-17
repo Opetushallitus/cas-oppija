@@ -38,7 +38,7 @@ public class SamlLogoutExecuteAction extends AbstractAction {
             var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
             var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
             //var context = WebUtils.getPac4jJ2EContext(request, response);
-            var context = new JEEContext(request, response);
+            var context = new JEEContext(request, response); // TODO Oikein??
 
 
             Client<?> client;

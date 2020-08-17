@@ -1,4 +1,4 @@
-package fi.vm.sade.cas.oppija.configuration.action;
+package fi.vm.sade.cas.oppija.configuration.configurer;
 
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.CasWebflowConstants;

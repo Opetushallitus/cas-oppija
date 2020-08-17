@@ -28,11 +28,11 @@ public class JacksonTicketSerializerTest {
     public void setup() {
         ticketSerializer = new JacksonTicketSerializer();
     }
-    /* TODO
+    /*
     @Test
     public void transientSessionTicket() {
         TransientSessionTicketExpirationPolicyBuilder.buildTicketExpirationPolicy();
-        TransientSessionTicketFactory transientSessionTicketFactory = new DefaultTransientSessionTicketFactory();
+        TransientSessionTicketFactory transientSessionTicketFactory = new DefaultTransientSessionTicketFactory(TODO);
         Service service = new WebApplicationServiceFactory().createService("service123");
         Map<String, Serializable> properties = Map.of(
                 "stringProperty", "value1",
@@ -47,7 +47,5 @@ public class JacksonTicketSerializerTest {
         assertThat(transientSessionTicketFromJson).isInstanceOf(TransientSessionTicket.class).isEqualByComparingTo(transientSessionTicket)
                 .returns(null, Ticket::getTicketGrantingTicket);
     }
-
-     */
-
+    */
 }

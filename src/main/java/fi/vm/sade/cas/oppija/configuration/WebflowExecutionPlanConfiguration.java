@@ -1,7 +1,7 @@
 package fi.vm.sade.cas.oppija.configuration;
 
-import fi.vm.sade.cas.oppija.configuration.action.LoginFlowConfigurer;
-import fi.vm.sade.cas.oppija.configuration.action.LogoutFlowConfigurer;
+import fi.vm.sade.cas.oppija.configuration.configurer.LoginFlowConfigurer;
+import fi.vm.sade.cas.oppija.configuration.configurer.LogoutFlowConfigurer;
 import org.apereo.cas.CentralAuthenticationService;
 import org.apereo.cas.audit.AuditableExecution;
 import org.apereo.cas.authentication.AuthenticationServiceSelectionPlan;
@@ -14,24 +14,15 @@ import org.apereo.cas.ticket.TicketFactory;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
-import org.apereo.cas.web.DelegatedClientNavigationController;
 import org.apereo.cas.web.DelegatedClientWebflowManager;
 import org.apereo.cas.web.cookie.CookieGenerationContext;
 import org.apereo.cas.web.flow.*;
 import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
 import org.apereo.cas.web.flow.resolver.CasWebflowEventResolver;
 import org.apereo.cas.web.support.ArgumentExtractor;
-import org.apereo.cas.web.support.WebUtils;
 import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
-import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
-import org.pac4j.core.context.HttpConstants;
-import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.core.credentials.Credentials;
-import org.pac4j.core.exception.http.HttpAction;
-import org.pac4j.core.profile.CommonProfile;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -43,7 +34,6 @@ import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 import org.springframework.webflow.execution.Action;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
-import org.springframework.webflow.execution.RequestContextHolder;
 
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)

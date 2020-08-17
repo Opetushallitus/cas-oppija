@@ -1,5 +1,7 @@
-package fi.vm.sade.cas.oppija.configuration.action;
+package fi.vm.sade.cas.oppija.configuration.configurer;
 
+import fi.vm.sade.cas.oppija.configuration.action.SamlLogoutExecuteAction;
+import fi.vm.sade.cas.oppija.configuration.action.SamlLogoutPrepareAction;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
 import org.apereo.cas.web.flow.CasWebflowConstants;

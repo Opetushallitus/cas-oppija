@@ -1,28 +1,25 @@
 package fi.vm.sade.cas.oppija.configuration;
 
 import fi.vm.sade.cas.oppija.service.PersonService;
-import org.apereo.cas.authentication.AuthenticationHandler;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.model.support.pac4j.Pac4jBaseClientProperties;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactory;
-import org.apereo.cas.support.pac4j.authentication.handler.support.*;
+import org.apereo.cas.support.pac4j.config.support.authentication.Pac4jAuthenticationEventExecutionPlanConfiguration;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.saml.common.xml.SAMLConstants;
-import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.IndirectClient;
 import org.pac4j.core.logout.handler.LogoutHandler;
-import org.pac4j.core.profile.UserProfile;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,10 +34,18 @@ import static fi.vm.sade.cas.oppija.CasOppijaUtils.resolveAttribute;
 
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
-public class SamlClientConfiguration {
+public class SamlClientConfiguration extends Pac4jAuthenticationEventExecutionPlanConfiguration {
+
+    @Autowired
+    private ObjectProvider<ServicesManager> servicesManager;
+
+    @Autowired
+    private Clients builtClients;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SamlClientConfiguration.class);
 
+    @Autowired
+    private PersonService personService;
     private final CasConfigurationProperties casProperties;
 
     public SamlClientConfiguration(CasConfigurationProperties casProperties) {
@@ -48,8 +53,8 @@ public class SamlClientConfiguration {
     }
 
     // override bean Pac4jAuthenticationEventExecutionPlanConfiguration#clientPrincipalFactory
-    @Bean
-    public PrincipalFactory clientPrincipalFactory(PersonService personService) {
+    @Override
+    public PrincipalFactory clientPrincipalFactory() {
         return new OidAttributePrincipalFactory(personService);
     }
 
@@ -86,11 +91,10 @@ public class SamlClientConfiguration {
 
     }
 
-    /* TODO override bean Pac4jAuthenticationEventExecutionPlanConfiguration#clientAuthenticationHandler
-    @Bean
-    public AuthenticationHandler clientAuthenticationHandler(ObjectProvider<ServicesManager> servicesManager,
-                                                             PersonService personService,
-                                                             Clients builtClients) {
+    /* override bean Pac4jAuthenticationEventExecutionPlanConfiguration#clientAuthenticationHandler
+    TODO ekä tätä ei enää tarvita? näyttää melkein samalta ja determinePrincipalIdFrom ei enää löydy.
+    @Override
+    public AuthenticationHandler clientAuthenticationHandler() {
         var pac4j = casProperties.getAuthn().getPac4j();
         var h = new ClientAuthenticationHandler(pac4j.getName(), servicesManager.getIfAvailable(),
                 clientPrincipalFactory(personService), builtClients) {
@@ -103,9 +107,7 @@ public class SamlClientConfiguration {
         h.setTypedIdUsed(pac4j.isTypedIdUsed());
         h.setPrincipalAttributeId(pac4j.getPrincipalAttributeId());
         return h;
-    }
-
-    */
+    } */
 
     @Bean
     public DelegatedClientFactory pac4jDelegatedClientFactory() {

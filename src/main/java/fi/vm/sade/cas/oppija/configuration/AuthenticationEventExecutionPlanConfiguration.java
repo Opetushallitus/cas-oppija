@@ -2,6 +2,7 @@ package fi.vm.sade.cas.oppija.configuration;
 
 import org.apereo.cas.authentication.*;
 import org.apereo.cas.authentication.principal.ClientCredential;
+import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.UserProfile;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,9 +28,9 @@ public class AuthenticationEventExecutionPlanConfiguration implements Authentica
 
         private void populateAttributes(AuthenticationBuilder builder, ClientCredential credential) {
             // add attributes from saml profile to authentication attributes for saml logout support
-            UserProfile profile = credential.getUserProfile();
+            CommonProfile profile = credential.getUserProfile();
             builder.addAttribute(AUTHENTICATION_ATTRIBUTE_CLIENT_PRINCIPAL_ID, profile.getId());
-            // TODO profile.getAuthenticationAttributes().forEach(builder::mergeAttribute);
+            profile.getAuthenticationAttributes().forEach(builder::mergeAttribute);
         }
 
         @Override
