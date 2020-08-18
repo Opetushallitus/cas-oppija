@@ -24,7 +24,6 @@ public class LogoutFlowConfigurer extends DefaultLogoutWebflowConfigurer {
         // add logout flow to login flow to be able logout from delegatedAuthenticationAction
         Flow flow = getLogoutFlow();
         StateDefinition startState = flow.getStartState();
-        super.doInitialize();
         flow.setStartState(startState.getId());
     }
 

@@ -23,6 +23,7 @@ import org.apereo.cas.web.support.ArgumentExtractor;
 import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.context.session.SessionStore;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
@@ -115,6 +116,10 @@ public class WebflowExecutionPlanConfiguration implements CasWebflowExecutionPla
     @Qualifier("defaultTicketFactory")
     private TicketFactory ticketFactory;
 
+    @Autowired
+    @Qualifier("logoutFlowRegistry")
+    private FlowDefinitionRegistry logoutFlowDefinitionRegistry;
+
     @Bean
     public CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator() {
         CookieGenerationContext context = CookieGenerationContext.EMPTY; // TODO ???
@@ -124,7 +129,7 @@ public class WebflowExecutionPlanConfiguration implements CasWebflowExecutionPla
     @Bean
     public CasWebflowConfigurer loginFlowConfigurer() {
         return new LoginFlowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry,
-                applicationContext, casProperties, ticketRegistrySupport, builtClients);
+                logoutFlowDefinitionRegistry, applicationContext, casProperties, ticketRegistrySupport, builtClients);
     }
     @Bean
     public CasWebflowConfigurer logoutFlowConfigurer() {
