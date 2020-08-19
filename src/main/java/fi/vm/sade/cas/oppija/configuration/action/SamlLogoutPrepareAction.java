@@ -3,6 +3,7 @@ package fi.vm.sade.cas.oppija.configuration.action;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
+import org.apereo.cas.web.cookie.CasCookieBuilder;
 import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.saml.profile.SAML2Profile;
@@ -27,10 +28,10 @@ import static org.apereo.cas.util.CollectionUtils.firstElement;
  */
 public class SamlLogoutPrepareAction extends AbstractAction {
 
-    private final CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private final CasCookieBuilder ticketGrantingTicketCookieGenerator;
     private final TicketRegistrySupport ticketRegistrySupport;
 
-    public SamlLogoutPrepareAction(CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator,
+    public SamlLogoutPrepareAction(CasCookieBuilder ticketGrantingTicketCookieGenerator,
                                    TicketRegistrySupport ticketRegistrySupport) {
         this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
         this.ticketRegistrySupport = ticketRegistrySupport;

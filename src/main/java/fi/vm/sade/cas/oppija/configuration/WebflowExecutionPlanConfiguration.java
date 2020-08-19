@@ -15,6 +15,7 @@ import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.util.CollectionUtils;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.DelegatedClientWebflowManager;
+import org.apereo.cas.web.cookie.CasCookieBuilder;
 import org.apereo.cas.web.cookie.CookieGenerationContext;
 import org.apereo.cas.web.flow.*;
 import org.apereo.cas.web.flow.resolver.CasDelegatingWebflowEventResolver;
@@ -120,11 +121,15 @@ public class WebflowExecutionPlanConfiguration implements CasWebflowExecutionPla
     @Qualifier("logoutFlowRegistry")
     private FlowDefinitionRegistry logoutFlowDefinitionRegistry;
 
-    @Bean
-    public CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator() {
-        CookieGenerationContext context = CookieGenerationContext.EMPTY; // TODO ???
-        return new CookieRetrievingCookieGenerator(context);
-    }
+
+    //@Bean
+    //public CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator() {
+    //    CookieGenerationContext context = CookieGenerationContext.EMPTY; // TODO ???
+    //    return new CookieRetrievingCookieGenerator(context);
+    //}
+
+
+
 
     @Bean
     public CasWebflowConfigurer loginFlowConfigurer() {

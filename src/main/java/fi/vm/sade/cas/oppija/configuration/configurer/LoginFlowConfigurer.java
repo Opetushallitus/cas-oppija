@@ -3,6 +3,7 @@ package fi.vm.sade.cas.oppija.configuration.configurer;
 import fi.vm.sade.cas.oppija.configuration.action.SamlLogoutExecuteAction;
 import fi.vm.sade.cas.oppija.configuration.action.SamlLogoutPrepareAction;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
+import org.apereo.cas.web.cookie.CasCookieBuilder;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.flow.DelegatedAuthenticationWebflowConfigurer;
@@ -26,7 +27,7 @@ import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_DELEGATED_AUT
 
 public class LoginFlowConfigurer extends DelegatedAuthenticationWebflowConfigurer {
     @Autowired
-    private CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private CasCookieBuilder ticketGrantingTicketCookieGenerator;
 
     private static final String TRANSITION_ID_LOGOUT = "logout";
 

@@ -11,6 +11,7 @@ import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
+import org.apereo.cas.web.cookie.CasCookieBuilder;
 import org.apereo.cas.web.support.ArgumentExtractor;
 import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,12 +30,12 @@ import static fi.vm.sade.cas.oppija.controller.ControllerUtils.wrapExceptionToAp
 @RequestMapping("/user")
 public class UserController {
 
-    private final CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
+    private final CasCookieBuilder ticketGrantingTicketCookieGenerator;
     private final TicketRegistry ticketRegistry;
     private final ArgumentExtractor argumentExtractor;
     private final ServicesManager servicesManager;
 
-    public UserController(@Qualifier("ticketGrantingTicketCookieGenerator") CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator,
+    public UserController(@Qualifier("ticketGrantingTicketCookieGenerator") CasCookieBuilder ticketGrantingTicketCookieGenerator,
                           TicketRegistry ticketRegistry,
                           ArgumentExtractor argumentExtractor,
                           ServicesManager servicesManager) {
