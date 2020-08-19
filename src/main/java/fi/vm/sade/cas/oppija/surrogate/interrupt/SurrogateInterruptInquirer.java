@@ -26,7 +26,7 @@ import static fi.vm.sade.cas.oppija.CasOppijaConstants.*;
 import static fi.vm.sade.cas.oppija.CasOppijaUtils.resolveAttribute;
 
 @Component
-@ConditionalOnProperty("valtuudet.enabled")
+//@ConditionalOnProperty("valtuudet.enabled")
 public class SurrogateInterruptInquirer implements InterruptInquirer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SurrogateInterruptInquirer.class);
