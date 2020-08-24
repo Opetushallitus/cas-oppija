@@ -36,11 +36,11 @@ public class JdbcTicketRegistry extends AbstractTicketRegistry {
 
     private final JdbcOperations jdbcOperations;
     private final StreamOperations streamOperations;
-    private final TicketSerializer ticketSerializer;
+    private final JacksonTicketSerializer ticketSerializer;
 
     public JdbcTicketRegistry(JdbcOperations jdbcOperations,
                               StreamOperations streamOperations,
-                              TicketSerializer ticketSerializer) {
+                              JacksonTicketSerializer ticketSerializer) {
         this.jdbcOperations = jdbcOperations;
         this.streamOperations = streamOperations;
         this.ticketSerializer = ticketSerializer;

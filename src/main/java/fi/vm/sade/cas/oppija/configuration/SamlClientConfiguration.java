@@ -46,6 +46,7 @@ public class SamlClientConfiguration extends Pac4jAuthenticationEventExecutionPl
 
     @Autowired
     private PersonService personService;
+
     private final CasConfigurationProperties casProperties;
 
     public SamlClientConfiguration(CasConfigurationProperties casProperties) {
