@@ -1,59 +1,6 @@
 # CAS configuration
 # https://apereo.github.io/cas/6.0.x/configuration/Configuration-Properties.html
 
-
-cas.server.name: https://testiopintopolku.fi
-cas.server.prefix: https://testiopintopolku.fi/cas-oppija
-
-cas.server.tomcat.httpProxy:
-  enabled: true
-  secure: true
-  scheme: https
-  protocol: HTTP/1.1
-
-cas.ticket.tgt.maxTimeToLiveInSeconds: 3600
-cas.ticket.tgt.timeToKillInSeconds: 3600
-
-
-cas.tgc.crypto:
-  encryption.key: yZHfPGaqLIq_k8TwKqbZ9OsdOTAsDUSvSQ6_AaqkVLI
-  signing.key: 6Ueq3rYLy4r_0moUEhiASQW1WgIvu33sR97s4-aQ24RTReahEGi9Js9b4sNTS3NZEteUdaz_2PaBxFSc_T6PkA
-cas.webflow.crypto:
-  encryption.key: hucMKYCVWG8C8FtTTF8vRw
-  signing.key: su6ceqD2JuT6oTiAg8QaDZmW5OmoM5VRiAPwm0R0iib_xRQP6eD9vB86CrhQXXNGKdtn1h_95mK7PTo5lmonCw
-
-#cas.authn.pac4j.cookie.crypto:
-#  encryption.key: lSml5ROboTGM4PVAJPlHPVvkRzu2iHxAnRoAd1OOSb0
-#  signing.key: 0lUM9BFvoOy7O_xhP5ckT12iTp5GlqSIAFw-z0FDWtN2vVPM_q8fptfjfQ3hqoKDZoa9kM91Ov_Jw8whUjW_bg
-cas.authn.pac4j.saml:
-  - clientName: ${cas.custom.properties.suomiFiClientName}
-    autoRedirect: true
-    keystorePath: keystore.jks
-    keystorePassword: aD1HkwmQHqNPflXErvWRLPVxhMAUIN
-    keystoreAlias: testiopintopolku.fi
-    privateKeyPassword: aD1HkwmQHqNPflXErvWRLPVxhMAUIN
-    serviceProviderEntityId: https://testiopintopolku.fi/cas-oppija
-    serviceProviderMetadataPath: sp-metadata.xml
-    identityProviderMetadataPath: idp-metadata.xml
-    principalAttributeId: nationalIdentificationNumber
-    requestedAttributes:
-      - name: urn:oid:1.2.246.21
-        friendlyName: nationalIdentificationNumber
-        nameFormat: urn:oasis:names:tc:SAML:2.0:attrname-format:uri
-        required: true
-      - name: urn:oid:2.5.4.3
-        friendlyName: cn
-        nameFormat: urn:oasis:names:tc:SAML:2.0:attrname-format:uri
-        required: true
-    mappedAttributes:
-      - name: urn:oid:2.5.4.3
-        mappedTo: personName
-
-cas.logout.redirectUrl: https://testiopintopolku.fi/oma-opintopolku
-
-cas.slo.asynchronous: false
-
-
 server.servlet.context-path: /cas-oppija
 server.port: 8080
 server.ssl.enabled: false
@@ -105,18 +52,13 @@ spring.session.store-type: jdbc
 
 cas.custom.properties:
   suomiFiClientName: suomi.fi
-whitelist.regexp: ^http://localhost(:[0-9]+)?(/.*)?$|(^https://(testiopintopolku\.fi|(.+(testing|qa).*\.varda-db.csc.fi))(/.*)?$)
-host.virkailija: http://virkailija.testiopintopolku.fi
-valtuudet.enabled: true
-valtuudet.required: true
-valtuudet.host: https://asiointivaltuustarkastus.test.suomi.fi
-valtuudet.client-id: 787bb6f6
-valtuudet.api-key: G1Dlma!OI8Dgf2yYa)G4w3B)m^aOSFJVaIJ&1SSC%6i4dzS2%KziGvJ!GXN%^BZ(
-valtuudet.oauth-password: pEK5J-!I8c#rbVHRnzhn7&SAk%Zf/cfz
-service-user.username: cas-oppija
-service-user.password: ICi1WuFc3sVfWg7SWTakUt7VvPTea_wp
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health
+whitelist.regexp: ^https?://.*
+host.virkailija: http://localhost:8080
+valtuudet.enabled: false
+valtuudet.required: false
+valtuudet.host: http://localhost:8080
+valtuudet.client-id: client
+valtuudet.api-key: key
+valtuudet.oauth-password: password
+service-user.username: user
+service-user.password: pass
