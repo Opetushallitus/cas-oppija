@@ -1,18 +1,18 @@
 package fi.vm.sade.cas.oppija.ticket;
 
-        import com.fasterxml.jackson.core.JsonGenerator;
-        import com.fasterxml.jackson.core.JsonProcessingException;
-        import com.fasterxml.jackson.databind.SerializerProvider;
-        import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-        import org.joda.time.DateTime;
-        import org.joda.time.DateTimeZone;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
-        import java.io.IOException;
-        import java.time.Instant;
-        import java.time.ZoneOffset;
-        import java.time.ZonedDateTime;
-        import java.util.Date;
-        import java.util.TimeZone;
+import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Date;
+import java.util.TimeZone;
 
 
 public final class CustomZonedDateTimeSerializer extends StdSerializer<ZonedDateTime> {
