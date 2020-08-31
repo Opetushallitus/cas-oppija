@@ -91,8 +91,8 @@ cas.ticket.registry.cleaner.schedule.enabled: false
 server.error.include-stacktrace: never
 
 spring.datasource.url: jdbc:postgresql://localhost:5432/cas-oppija
-spring.datasource.username: username
-spring.datasource.password: password
+spring.datasource.username: uname
+spring.datasource.password: ppassword
 spring.datasource.driver-class-name: org.postgresql.Driver
 spring.datasource.platform: postgresql
 
@@ -115,3 +115,8 @@ valtuudet.api-key: G1Dlma!OI8Dgf2yYa)G4w3B)m^aOSFJVaIJ&1SSC%6i4dzS2%KziGvJ!GXN%^
 valtuudet.oauth-password: pEK5J-!I8c#rbVHRnzhn7&SAk%Zf/cfz
 service-user.username: cas-oppija
 service-user.password: ICi1WuFc3sVfWg7SWTakUt7VvPTea_wp
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
