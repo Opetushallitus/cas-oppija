@@ -10,7 +10,7 @@ cas.server.tomcat.httpProxy:
     enabled: true
     secure: true
     scheme: https
-#    protocol: HTTP/1.1
+    protocol: HTTP/1.1
 
 cas.server.tomcat.http.enabled: false
 
