@@ -4,8 +4,6 @@
 server.servlet.context-path: /cas-oppija
 server.port: 8080
 server.ssl.enabled: false
-server.useForwardHeaders: false
-
 server.tomcat.portHeader:
 server.tomcat.protocolHeader:
 server.tomcat.remoteIpHeader:
@@ -62,3 +60,5 @@ valtuudet.api-key: key
 valtuudet.oauth-password: password
 service-user.username: user
 service-user.password: pass
+server:
+  forward-headers-strategy: none
