@@ -80,7 +80,7 @@ dependencies {
     compile "org.apereo.cas:cas-server-support-interrupt-webflow:${casServerVersion}"
     compile "org.apereo.cas:cas-server-webapp-config:${casServerVersion}"
     compile "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
-    // compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:2.9.9"
+    compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:2.10.0"
     compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.10.0'
     compile "com.github.kagkarlsson:db-scheduler:6.2"
     compile "org.flywaydb:flyway-core:5.2.4"

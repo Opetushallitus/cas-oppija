@@ -25,15 +25,15 @@ public class JacksonTicketSerializer implements TicketSerializer {
     public JacksonTicketSerializer() {
         PolymorphicTypeValidator ptv =
                 BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType(Ticket.class)
+                        //.allowIfBaseType(Ticket.class)
                         .build();
         //SimpleModule module = new SimpleModule().addSerializer(ZonedDateTime.class, new CustomZonedDateTimeSerializer());;
         SimpleModule module2 = new SimpleModule().addSerializer(SAML2Profile.class, new ItemSerializer());;
-        this.objectMapper = JsonMapper.builder() // new style
-               // .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
-                .build()
-                .registerModules(new JavaTimeModule(), module2).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-                //.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.objectMapper = new ObjectMapper()
+                        .enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL)
+                        .findAndRegisterModules();
+                        //.registerModules(new JavaTimeModule(), module2).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
 
     }
 
