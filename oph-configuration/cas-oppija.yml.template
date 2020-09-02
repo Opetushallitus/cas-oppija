@@ -14,6 +14,8 @@ cas.server.tomcat.httpProxy:
 
 cas.server.tomcat.http.enabled: false
 
+management.endpoint.health.enabled: true
+
 cas.ticket.tgt.maxTimeToLiveInSeconds: {{ cas_oppija_tgt_max_time_to_live_in_seconds | default('3600') }}
 cas.ticket.tgt.timeToKillInSeconds: {{ cas_oppija_tgt_time_to_kill_in_seconds | default('3600') }}
 
