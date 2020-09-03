@@ -10,12 +10,19 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import fi.vm.sade.cas.oppija.surrogate.SurrogateData;
+import fi.vm.sade.cas.oppija.surrogate.SurrogateImpersonatorData;
+import fi.vm.sade.cas.oppija.surrogate.SurrogateRequestData;
+import org.apereo.cas.authentication.principal.SimpleWebApplicationServiceImpl;
 import org.apereo.cas.ticket.Ticket;
 import org.pac4j.saml.profile.SAML2Profile;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.ZonedDateTime;
+import java.time.temporal.Temporal;
+import java.util.*;
 
 @Component
 public class JacksonTicketSerializer implements TicketSerializer {
@@ -25,15 +32,29 @@ public class JacksonTicketSerializer implements TicketSerializer {
     public JacksonTicketSerializer() {
         PolymorphicTypeValidator ptv =
                 BasicPolymorphicTypeValidator.builder()
-                        //.allowIfBaseType(Ticket.class)
+                        .allowIfBaseType(Ticket.class)
+                        .allowIfSubType(HashMap.class)
+                        .allowIfSubType(HashSet.class)
+                        .allowIfSubType(TreeMap.class)
+                        .allowIfSubType(Temporal.class)
+                        .allowIfSubType(org.joda.time.LocalDate.class)
+                        .allowIfSubType(SurrogateData.class)
+                        .allowIfSubType(SAML2Profile.class)
+                        .allowIfSubType(SimpleWebApplicationServiceImpl.class)
+                        .allowIfSubType(SurrogateRequestData.class)
+                        .allowIfSubType(SurrogateImpersonatorData.class)
+                        .allowIfSubType(ArrayList.class)
+                        .allowIfSubType(List.class)
                         .build();
         //SimpleModule module = new SimpleModule().addSerializer(ZonedDateTime.class, new CustomZonedDateTimeSerializer());;
         SimpleModule module2 = new SimpleModule().addSerializer(SAML2Profile.class, new ItemSerializer());;
-        this.objectMapper = new ObjectMapper()
-                        .enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL)
-                        .findAndRegisterModules();
-                        //.registerModules(new JavaTimeModule(), module2).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-
+        this.objectMapper = JsonMapper.builder() // new style
+                .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL)
+                .build()
+                .registerModules(new JavaTimeModule(), module2).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .findAndRegisterModules();
+                //.registerModules(new JavaTimeModule(), module2).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                //.registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     }
 
