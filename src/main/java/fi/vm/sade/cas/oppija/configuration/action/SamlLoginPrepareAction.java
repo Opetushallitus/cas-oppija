@@ -13,14 +13,14 @@ public class SamlLoginPrepareAction extends AbstractAction {
 
     @Override
     protected Event doExecute(RequestContext context) throws Exception {
-        Boolean valtuudetEnabled = true;
+        Boolean isValtuudetEnabled = true;
 
         if (!context.getExternalContext().getRequestParameterMap().isEmpty() && context.getExternalContext().getRequestParameterMap().contains("valtuudet")) {
-            valtuudetEnabled = context.getExternalContext().getRequestParameterMap().getBoolean("valtuudet");
+            isValtuudetEnabled = context.getExternalContext().getRequestParameterMap().getBoolean("valtuudet");
         }
 
-        if (!context.getFlowScope().contains("valtuudet")) {
-            context.getFlowScope().put("valtuudet", valtuudetEnabled);
+        if (!context.getConversationScope().contains("valtuudet")) {
+            context.getConversationScope().put("valtuudet", isValtuudetEnabled);
         }
         return success();
     }

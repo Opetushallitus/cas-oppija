@@ -48,14 +48,14 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
                 .map(Locale::getLanguage)
                 .filter(SUPPORTED_LANGUAGES::contains)
                 .orElse(DEFAULT_LANGUAGE);
-        boolean valtuudet = (Boolean) requestContext.getFlowScope().get("valtuudet");
-        return inquire(authentication, service, language, valtuudet);
+        boolean isValtuudetEnabled = (Boolean) requestContext.getConversationScope().get("valtuudet");
+        return inquire(authentication, service, language, isValtuudetEnabled);
     }
 
-    private InterruptResponse inquire(Authentication authentication, Service service, String language, boolean valtuudet) {
+    private InterruptResponse inquire(Authentication authentication, Service service, String language, boolean isValtuudetEnabled) {
         InterruptResponse interruptResponse = new InterruptResponse();
 
-        if (valtuudet) {
+        if (isValtuudetEnabled) {
             Principal principal = authentication.getPrincipal();
             Map<String, Object> principalAttributes = principal.getAttributes();
             Map<String, Object> authenticationAttributes = authentication.getAttributes();
