@@ -134,7 +134,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
             @Override
             protected void doInitialize() {
                 // Initial login action to collect url parameters
-                ActionList startActionList = getLoginFlow().getStartActionList();
+                ActionList startActionList = super.getLoginFlow().getStartActionList();
                 startActionList.add(new SamlLoginPrepareAction());
 
                 // fix delegatedAuthenticationAction success transition
