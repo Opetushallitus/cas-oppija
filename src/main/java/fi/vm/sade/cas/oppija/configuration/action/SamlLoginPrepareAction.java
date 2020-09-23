@@ -19,18 +19,12 @@ public class SamlLoginPrepareAction extends AbstractAction {
 
     @Override
     protected Event doExecute(RequestContext context) throws Exception {
-        Boolean isValtuudetEnabled = VALTUUDET_ENABLED;
-
-        if (!context.getExternalContext().getRequestParameterMap().isEmpty() && context.getExternalContext().getRequestParameterMap().contains("valtuudet")) {
-            isValtuudetEnabled = context.getExternalContext().getRequestParameterMap().getBoolean("valtuudet");
-            this.loginFlow.getAttributes().put("valtuudet", isValtuudetEnabled);
-            return success();
-        } else if (context.getExternalContext().getRequestParameterMap().contains("service") && context.getExternalContext().getRequestParameterMap().get("service").contains("initsession")) {
-            this.loginFlow.getAttributes().put("valtuudet", isValtuudetEnabled);
-            return success();
-        } else {
-            // NOP - Should be set on initial request only.
-            return success();
+        if (context.getExternalContext().getRequestParameterMap().contains("valtuudet")) {
+            this.loginFlow.getAttributes().put("valtuudet", context.getExternalContext().getRequestParameterMap().getBoolean("valtuudet"));
+        } else if (context.getExternalContext().getRequestParameterMap().contains("service")
+                && context.getExternalContext().getRequestParameterMap().get("service").contains("initsession")) {
+            this.loginFlow.getAttributes().put("valtuudet", VALTUUDET_ENABLED);
         }
+        return success();
     }
 }
