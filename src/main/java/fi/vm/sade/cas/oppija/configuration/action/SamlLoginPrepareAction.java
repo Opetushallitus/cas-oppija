@@ -22,9 +22,8 @@ public class SamlLoginPrepareAction extends AbstractAction {
             isValtuudetEnabled = context.getExternalContext().getRequestParameterMap().getBoolean("valtuudet");
         }
 
-        if (!context.getConversationScope().contains("valtuudet")) {
+        if (!loginFlow.getAttributes().contains("valtuudet")) {
             loginFlow.getAttributes().put("valtuudet", isValtuudetEnabled);
-            context.getConversationScope().put("valtuudet", isValtuudetEnabled);
         }
         return success();
     }
