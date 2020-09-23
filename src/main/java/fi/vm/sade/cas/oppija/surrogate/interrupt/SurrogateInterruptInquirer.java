@@ -49,7 +49,7 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
                 .filter(SUPPORTED_LANGUAGES::contains)
                 .orElse(DEFAULT_LANGUAGE);
         boolean isValtuudetEnabled = (Boolean) requestContext.getActiveFlow().getAttributes().contains("valtuudet")
-                ? (Boolean) requestContext.getActiveFlow().getAttributes().get("valtuudet") : true;
+                ? (Boolean) requestContext.getActiveFlow().getAttributes().get("valtuudet") : VALTUUDET_ENABLED;
         return inquire(authentication, service, language, isValtuudetEnabled);
     }
 
