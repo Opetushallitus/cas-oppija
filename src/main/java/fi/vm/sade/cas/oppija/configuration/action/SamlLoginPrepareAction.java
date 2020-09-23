@@ -1,6 +1,7 @@
 package fi.vm.sade.cas.oppija.configuration.action;
 
 import org.springframework.webflow.action.AbstractAction;
+import org.springframework.webflow.engine.Flow;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -8,7 +9,9 @@ import org.springframework.webflow.execution.RequestContext;
  * Get possible valtuudet-parameter from url to enable/disable valtuudet login.
  */
 public class SamlLoginPrepareAction extends AbstractAction {
-    public SamlLoginPrepareAction() {
+    private Flow loginFlow;
+    public SamlLoginPrepareAction(Flow loginFlow) {
+        this.loginFlow = loginFlow;
     }
 
     @Override
@@ -20,6 +23,7 @@ public class SamlLoginPrepareAction extends AbstractAction {
         }
 
         if (!context.getConversationScope().contains("valtuudet")) {
+            loginFlow.getAttributes().put("valtuudet", isValtuudetEnabled);
             context.getConversationScope().put("valtuudet", isValtuudetEnabled);
         }
         return success();
