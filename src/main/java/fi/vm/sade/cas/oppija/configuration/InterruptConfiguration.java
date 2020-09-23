@@ -2,6 +2,8 @@ package fi.vm.sade.cas.oppija.configuration;
 
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.interrupt.InterruptInquirer;
+import org.apereo.cas.interrupt.InterruptResponse;
+import org.apereo.cas.interrupt.webflow.InterruptUtils;
 import org.apereo.cas.interrupt.webflow.InterruptWebflowConfigurer;
 import org.apereo.cas.interrupt.webflow.actions.InquireInterruptAction;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
@@ -110,17 +112,16 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
             @Override
             protected Event doExecute(RequestContext requestContext) {
                 Event event = super.doExecute(requestContext);
+                if (CasWebflowConstants.TRANSITION_ID_INTERRUPT_REQUIRED.equals(event.getId())) {
+                    InterruptResponse interruptResponse = InterruptUtils.getInterruptFrom(requestContext);
+                    if (interruptResponse.isAutoRedirect() && interruptResponse.getAutoRedirectAfterSeconds() < 0
+                            && interruptResponse.getLinks().size() > 0) {
+                        requestContext.getFlowScope().put("interruptRedirectUrl",
+                                interruptResponse.getLinks().values().iterator().next());
+                        return result("interruptRedirect");
+                    }
+                }
 
-//                if (CasWebflowConstants.TRANSITION_ID_INTERRUPT_REQUIRED.equals(event.getId())) {
-//                    InterruptResponse interruptResponse = InterruptUtils.getInterruptFrom(requestContext);
-//                    if (interruptResponse.isAutoRedirect() && interruptResponse.getAutoRedirectAfterSeconds() < 0
-//                            && interruptResponse.getLinks().size() > 0) {
-//                        requestContext.getFlowScope().put("interruptRedirectUrl",
-//                                interruptResponse.getLinks().values().iterator().next());
-//                        return result("interruptRedirect");
-//                    }
-//                }
-//
                 return event;
             }
         };
