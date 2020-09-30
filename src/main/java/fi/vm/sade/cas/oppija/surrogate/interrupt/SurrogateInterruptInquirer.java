@@ -58,9 +58,7 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
         }
     }
 
-    private InterruptResponse inquire(Authentication authentication, Service service, String language, boolean isValtuudetEnabled) {
-        InterruptResponse interruptResponse = new InterruptResponse();
-
+    private InterruptResponse inquire(Authentication authentication, Service service, String language) {
         Principal principal = authentication.getPrincipal();
         Map<String, Object> principalAttributes = principal.getAttributes();
         Map<String, Object> authenticationAttributes = authentication.getAttributes();
@@ -68,11 +66,13 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
         String nationalIdentificationNumber = resolveAttribute(principalAttributes,
                 ATTRIBUTE_NAME_NATIONAL_IDENTIFICATION_NUMBER, String.class)
                 .orElseThrow(() -> new IllegalArgumentException("National identification number not available"));
+
         SurrogateImpersonatorData impersonatorData = new SurrogateImpersonatorData(principal.getId(),
                 principalAttributes, authenticationAttributes);
         String redirectUrl = surrogateService.getRedirectUrl(service, nationalIdentificationNumber, language, impersonatorData);
-        interruptResponse.setLinks(Map.of("Suomi.fi-valtuudet", redirectUrl));
 
+        InterruptResponse interruptResponse = new InterruptResponse();
+        interruptResponse.setLinks(Map.of("Suomi.fi-valtuudet", redirectUrl));
         boolean required = environment.getRequiredProperty("valtuudet.required", Boolean.class);
         interruptResponse.setBlock(required);
         interruptResponse.setAutoRedirect(required);

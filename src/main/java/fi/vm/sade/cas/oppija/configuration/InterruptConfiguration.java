@@ -121,7 +121,6 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                         return result("interruptRedirect");
                     }
                 }
-
                 return event;
             }
         };
