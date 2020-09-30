@@ -52,7 +52,7 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
         boolean isValtuudetEnabled = requestContext.getActiveFlow().getAttributes().contains("valtuudet")
                 ? (Boolean) requestContext.getActiveFlow().getAttributes().get("valtuudet") : VALTUUDET_ENABLED;
         if (isValtuudetEnabled) {
-            return inquire(authentication, service, language, isValtuudetEnabled);
+            return inquire(authentication, service, language);
         } else {
             return InterruptResponse.none();
         }
