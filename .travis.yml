@@ -20,7 +20,7 @@ install:
   - source ci-tools/common/setup-tools.sh
   - export ARTIFACT_NAME="cas-oppija"
   - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
-  # - source ./install-jdk.sh --url 'https://api.adoptopenjdk.net/v2/binary/releases/openjdk11?openjdk_impl=hotspot&os=linux&arch=x64&release=latest&heap_size=normal&type=jdk'
+  - source ./install-jdk.sh --url 'https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.8%2B10/OpenJDK11U-jre_x64_linux_hotspot_11.0.8_10.tar.gz'
   - java -version
 
 script:
