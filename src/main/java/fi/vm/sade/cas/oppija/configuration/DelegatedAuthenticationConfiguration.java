@@ -49,6 +49,7 @@ import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 import static java.util.stream.Collectors.toList;
+import static org.apereo.cas.web.flow.CasWebflowConstants.DECISION_STATE_FINISH_LOGOUT;
 
 /**
  * This class should include only fixes to default cas delegated authentication configuration.
@@ -242,7 +243,8 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                         WebUtils.putLogoutRedirectUrl(requestContext, redirectUrl);
                         return result(TRANSITION_ID_LOGOUT);
                     case HttpConstants.OK:
-                        return result(TRANSITION_ID_LOGOUT);
+                        //no-op. Logout ok!
+                        return result(DECISION_STATE_FINISH_LOGOUT);
                     default:
                         throw new IllegalArgumentException("Unhandled logout response code: " + httpAction.getCode());
                 }
