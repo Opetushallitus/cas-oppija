@@ -242,7 +242,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                         WebUtils.putLogoutRedirectUrl(requestContext, redirectUrl);
                         return result(TRANSITION_ID_LOGOUT);
                     case HttpConstants.OK:
-                        return null;
+                        return result(TRANSITION_ID_LOGOUT);
                     default:
                         throw new IllegalArgumentException("Unhandled logout response code: " + httpAction.getCode());
                 }
