@@ -15,9 +15,9 @@ cas.server.prefix: http://localhost:8080/cas-oppija
 
 cas.httpWebRequest.cors.enabled: true
 cas.httpWebRequest.cors.allowCredentials: true
-cas.httpWebRequest.cors.allowOrigins[0]: https://untuvaopintopolku.fi
-cas.httpWebRequest.cors.allowOrigins[1]: https://untuvastudyinfo.fi
-cas.httpWebRequest.cors.allowOrigins[2]: https://untuvastudieinfo.fi
+cas.httpWebRequest.cors.allowOrigins[0]: http://localhost
+cas.httpWebRequest.cors.allowOrigins[1]: http://localhost-en
+cas.httpWebRequest.cors.allowOrigins[2]: http://localhost-sv
 cas.httpWebRequest.cors.allowOrigins[3]: "*"
 cas.httpWebRequest.cors.allowMethods[0]: "*"
 cas.httpWebRequest.cors.allowHeaders[0]: "*"
