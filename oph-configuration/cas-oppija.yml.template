@@ -72,6 +72,11 @@ spring.datasource.url: jdbc:postgresql://{{ cas_oppija_datasource_host }}:{{ cas
 spring.datasource.username: {{ postgres_app_user }}
 spring.datasource.password: {{ postgresql_cas_app_password }}
 
+spring.session.store-type: jdbc
+spring.session.jdbc.initialize-schema: embedded
+spring.session.jdbc.schema=classpath: org/springframework/session/jdbc/schema-postgres.sql
+spring.session.jdbc.table-name: SPRING_SESSION
+
 server.tomcat.accesslog:
     enabled: true
     directory: /root/logs

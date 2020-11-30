@@ -60,6 +60,9 @@ spring.flyway.enabled: true
 spring.flyway.out-of-order: true
 
 spring.session.store-type: jdbc
+spring.session.jdbc.initialize-schema: embedded
+spring.session.jdbc.schema=classpath: org/springframework/session/jdbc/schema-postgres.sql
+spring.session.jdbc.table-name: SPRING_SESSION
 
 # Custom configuration
 
