@@ -53,9 +53,6 @@ apply plugin: "idea"
 apply plugin: "com.google.cloud.tools.jib"
 
 dependencies {
-    configurations.all {
-        resolutionStrategy.force 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
-    }
     compile "org.apereo.cas:cas-server-webapp${project.appServer}:${casServerVersion}"
     // Other CAS dependencies/modules may be listed here...
     compile "org.apereo.cas:cas-server-core-api-services:${casServerVersion}"
@@ -102,12 +99,15 @@ tasks.findByName("jibDockerBuild")
     .finalizedBy(deleteWebAppFromJib)
 
 configurations.all {
+
     resolutionStrategy {
         cacheChangingModulesFor 0, "seconds"
         cacheDynamicVersionsFor 0, "seconds"
 
         preferProjectModules()
-
+        force 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.8'
+        force 'com.fasterxml.jackson.core:jackson-core:2.9.8'
+        force 'com.fasterxml.jackson.core:jackson-annotations:2.9.8'
         def failIfConflict = project.hasProperty("failOnVersionConflict") && Boolean.valueOf(project.getProperty("failOnVersionConflict"))
         if (failIfConflict) {
             failOnVersionConflict()
