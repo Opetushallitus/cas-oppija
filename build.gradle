@@ -53,6 +53,9 @@ apply plugin: "idea"
 apply plugin: "com.google.cloud.tools.jib"
 
 dependencies {
+    configurations.all {
+        resolutionStrategy.force 'com.fasterxml.jackson.core:jackson-annotations:2.9.9'
+    }
     compile "org.apereo.cas:cas-server-webapp${project.appServer}:${casServerVersion}"
     // Other CAS dependencies/modules may be listed here...
     compile "org.apereo.cas:cas-server-core-api-services:${casServerVersion}"
@@ -75,7 +78,6 @@ dependencies {
     compile "org.apereo.cas:cas-server-support-interrupt-api:${casServerVersion}"
     compile "org.apereo.cas:cas-server-support-interrupt-core:${casServerVersion}"
     compile "org.apereo.cas:cas-server-support-interrupt-webflow:${casServerVersion}"
-    compile "org.apereo.cas:cas-server-support-session-jdbc:${casServerVersion}"
     compile "org.apereo.cas:cas-server-webapp-config:${casServerVersion}"
     compile "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
     compile "com.fasterxml.jackson.datatype:jackson-datatype-joda:2.9.9"
