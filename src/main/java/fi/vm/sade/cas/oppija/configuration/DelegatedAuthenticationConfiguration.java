@@ -205,11 +205,6 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         };
     }
 
-    @Bean
-    public Module parameterNamesModule() {
-        return new ParameterNamesModule(JsonCreator.Mode.PROPERTIES);
-    }
-
     // override default delegatedAuthenticationAction to automatically logout on error
     @Bean
     public Action delegatedAuthenticationAction() {
