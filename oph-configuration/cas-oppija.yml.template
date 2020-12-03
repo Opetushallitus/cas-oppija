@@ -72,10 +72,10 @@ spring.datasource.url: jdbc:postgresql://{{ cas_oppija_datasource_host }}:{{ cas
 spring.datasource.username: {{ postgres_app_user }}
 spring.datasource.password: {{ postgresql_cas_app_password }}
 
-# cas.webflow.autoconfigure: true
-# cas.webflow.alwaysPauseRedirect: false
-# cas.webflow.refresh: true
-# cas.webflow.redirectSameState: false
+#cas.webflow.autoconfigure: true
+#cas.webflow.alwaysPauseRedirect: false
+#cas.webflow.refresh: true
+#cas.webflow.redirectSameState: false
 
 cas.webflow.session.lockTimeout: 30
 cas.webflow.session.compress: false
