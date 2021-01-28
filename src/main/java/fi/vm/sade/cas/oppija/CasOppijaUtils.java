@@ -1,8 +1,12 @@
 package fi.vm.sade.cas.oppija;
 
+import org.apereo.cas.web.support.WebUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.webflow.execution.RequestContext;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
@@ -34,6 +38,35 @@ public final class CasOppijaUtils {
         }
         LOGGER.warn("Cannot parse {} to {} (type={}, value={})", attributeName, type, attribute.getClass(), attribute);
         return Optional.empty();
+    }
+
+    public static boolean sessionContainsAttribute(RequestContext requestContext, String attributeName) {
+        HttpSession session = getSession(requestContext);
+        if(session.getAttribute(attributeName) != null) return true;
+        return false;
+    }
+
+    public static Boolean getSessionAttributeBoolean(RequestContext requestContext, String attributeName) {
+        HttpSession session = getSession(requestContext);
+        Object attribute = session.getAttribute(attributeName);
+        if(attribute == null) return null;
+        return (Boolean) attribute;
+    }
+
+    public static void setSessionAttribute(RequestContext requestContext, String attributeName, Object attribute) {
+        HttpSession session = getSession(requestContext);
+        session.setAttribute(attributeName, attribute);
+    }
+
+    public static void removeSessionAttribute(RequestContext requestContext, String attributeName) {
+        HttpSession session = getSession(requestContext);
+        session.removeAttribute(attributeName);
+    }
+
+    private static HttpSession getSession(RequestContext requestContext) {
+        HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
+        HttpSession session = request.getSession();
+        return session;
     }
 
 }

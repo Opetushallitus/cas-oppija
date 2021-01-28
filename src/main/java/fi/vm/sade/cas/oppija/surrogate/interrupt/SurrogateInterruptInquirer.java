@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.env.Environment;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -27,6 +28,9 @@ import java.util.Optional;
 
 import static fi.vm.sade.cas.oppija.CasOppijaConstants.*;
 import static fi.vm.sade.cas.oppija.CasOppijaUtils.resolveAttribute;
+import static fi.vm.sade.cas.oppija.CasOppijaUtils.sessionContainsAttribute;
+import static fi.vm.sade.cas.oppija.CasOppijaUtils.getSessionAttributeBoolean;
+import static fi.vm.sade.cas.oppija.CasOppijaUtils.removeSessionAttribute;
 
 @Component
 @ConditionalOnProperty("valtuudet.enabled")
@@ -54,19 +58,20 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
                 .filter(SUPPORTED_LANGUAGES::contains)
                 .orElse(DEFAULT_LANGUAGE);
 
-        boolean isValtuudetEnabled = requestContext.getActiveFlow().getAttributes().contains("valtuudet")
-                ? (Boolean) requestContext.getActiveFlow().getAttributes().get("valtuudet") : VALTUUDET_ENABLED;
+        boolean isValtuudetEnabled = sessionContainsAttribute(requestContext, "valtuudet")
+                ? getSessionAttributeBoolean(requestContext, "valtuudet") : VALTUUDET_ENABLED;
 
         HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
         String clientName = request.getParameter(Pac4jConstants.DEFAULT_CLIENT_NAME_PARAMETER);
 
         LOGGER.info("VALTUUDET | RequestContext contains valtuudet: {} | Valtuudet: {} | isValtuudetEnabled: {} | clientName: {} | Credential: {}",
-                requestContext.getActiveFlow().getAttributes().contains("valtuudet"),
-                requestContext.getActiveFlow().getAttributes().get("valtuudet"),
+                sessionContainsAttribute(requestContext, "valtuudet"),
+                getSessionAttributeBoolean(requestContext, "valtuudet"),
                 isValtuudetEnabled,
                 clientName,
                 credential.getId());
 
+        removeSessionAttribute(requestContext, "valtuudet");
         if (isValtuudetEnabled && !"fakesuomi.fi".equals(clientName)) {
             return inquire(authentication, service, language);
         } else {
