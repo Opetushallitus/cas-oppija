@@ -9,6 +9,7 @@ import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.profile.SAML2Profile;
+import org.pac4j.saml.state.SAML2StateGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.webflow.action.AbstractAction;
@@ -46,17 +47,17 @@ public class SamlLogoutExecuteAction extends AbstractAction {
                 var currentClientName = profile == null ? null : profile.getClientName();
                 client = currentClientName == null ? null : clients.findClient(currentClientName);
             } catch (final TechnicalException e) {
-                LOGGER.debug("No SAML2 client found: " + e.getMessage(), e);
+                LOGGER.info("No SAML2 client found: " + e.getMessage(), e);
                 client = null;
             }
             if (client instanceof SAML2Client) {
                 var saml2Client = (SAML2Client) client;
-                LOGGER.debug("Located SAML2 client [{}]", saml2Client);
+                LOGGER.info("Located SAML2 client [{}]", saml2Client);
                 var action = saml2Client.getLogoutAction(context, profile, null);
-                LOGGER.debug("Preparing logout message to send is [{}]", action.getLocation());
+                LOGGER.info("Preparing logout message to send is [{}]", action.getLocation());
                 return handleLogout(action, requestContext);
             } else {
-                LOGGER.debug("The current client is not a SAML2 client or it cannot be found at all, no logout action will be executed.");
+                LOGGER.info("The current client is not a SAML2 client or it cannot be found at all, no logout action will be executed.");
             }
         } catch (final Exception e) {
             LOGGER.warn(e.getMessage(), e);
@@ -69,6 +70,7 @@ public class SamlLogoutExecuteAction extends AbstractAction {
         //if (context.getExternalContext().getRequestParameterMap().contains("service")) {
         //    casProperties.getLogout().setRedirectUrl(context.getExternalContext().getRequestParameterMap().get("service"));
         //}
+        LOGGER.info("LOGOUT | Service: {} | Action: {}", context.getExternalContext().getRequestParameterMap().get("service"), action.getLocation());
         switch (action.getType()) {
             case REDIRECT:
                 WebUtils.putLogoutRedirectUrl(context, action.getLocation());
