@@ -161,7 +161,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 DecisionState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT, DecisionState.class);
                 ActionList entryActionList = finishLogoutState.getEntryActionList();
                 clear(entryActionList, entryActionList::remove);
-                entryActionList.add(new SamlLogoutExecuteAction(clients, casProperties));
+                entryActionList.add(new SamlLogoutExecuteAction(clients));
             }
         });
 

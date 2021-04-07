@@ -27,11 +27,9 @@ public class SamlLogoutExecuteAction extends AbstractAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(SamlLogoutExecuteAction.class);
 
     private final Clients clients;
-    private final CasConfigurationProperties casProperties;
 
-    public SamlLogoutExecuteAction(Clients clients, CasConfigurationProperties casProperties) {
+    public SamlLogoutExecuteAction(Clients clients) {
         this.clients = clients;
-        this.casProperties = casProperties;
     }
 
     @Override
@@ -52,7 +50,12 @@ public class SamlLogoutExecuteAction extends AbstractAction {
             }
             if (client instanceof SAML2Client) {
                 var saml2Client = (SAML2Client) client;
-                LOGGER.info("Located SAML2 client [{}]", saml2Client);
+                LOGGER.debug("Located SAML2 client [{}]", saml2Client);
+                var service = request.getParameter("service");
+                if (service != null) {
+                    String requestUrl = String.join("?", request.getRequestURL(), request.getQueryString());
+                    context.getSessionStore().set(context, SAML2StateGenerator.SAML_RELAY_STATE_ATTRIBUTE, requestUrl);
+                }
                 var action = saml2Client.getLogoutAction(context, profile, null);
                 LOGGER.info("Preparing logout message to send is [{}]", action.getLocation());
                 return handleLogout(action, requestContext);
@@ -66,10 +69,6 @@ public class SamlLogoutExecuteAction extends AbstractAction {
     }
 
     protected Event handleLogout(RedirectAction action, RequestContext context) {
-        // Set logout service redirect url manually to correctly redirect back to service.
-        //if (context.getExternalContext().getRequestParameterMap().contains("service")) {
-        //    casProperties.getLogout().setRedirectUrl(context.getExternalContext().getRequestParameterMap().get("service"));
-        //}
         LOGGER.info("LOGOUT | Service: {} | Action: {}", context.getExternalContext().getRequestParameterMap().get("service"), action.getLocation());
         switch (action.getType()) {
             case REDIRECT:
