@@ -1,6 +1,5 @@
 package fi.vm.sade.cas.oppija.configuration.action;
 
-import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.util.Pac4jUtils;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.client.Client;
