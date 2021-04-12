@@ -4,17 +4,17 @@ import org.apereo.cas.util.Pac4jUtils;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
-import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.profile.SAML2Profile;
-import org.pac4j.saml.state.SAML2StateGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static fi.vm.sade.cas.oppija.CasOppijaConstants.REQUEST_SCOPE_ATTRIBUTE_SAML_LOGOUT;
 
@@ -52,16 +52,16 @@ public class SamlLogoutExecuteAction extends AbstractAction {
                 var saml2Client = (SAML2Client) client;
                 LOGGER.debug("Located SAML2 client [{}]", saml2Client);
                 var service = request.getParameter("service");
-                storeRelayState(context, service);
+                storeLogoutRedirectUrl(request, service);
                 var action = saml2Client.getLogoutAction(context, profile, null);
                 LOGGER.info("Preparing logout message to send is [{}]", action.getLocation());
                 return handleLogout(action, requestContext);
             } else {
                 LOGGER.info("The current client is not a SAML2 client or it cannot be found at all, no logout action will be executed.");
-                var relayState = getRelayState(context);
-                if (relayState != null) {
-                    LOGGER.info("RelayState received, setting logout redirect url: " + relayState);
-                    WebUtils.putLogoutRedirectUrl(requestContext, relayState);
+                var logoutRedirectUrl = getLogoutRedirectUrl(request);
+                if (logoutRedirectUrl != null) {
+                    LOGGER.info("Logout redirect url: " + logoutRedirectUrl);
+                    WebUtils.putLogoutRedirectUrl(requestContext, logoutRedirectUrl);
                 }
             }
         } catch (final Exception e) {
@@ -81,15 +81,14 @@ public class SamlLogoutExecuteAction extends AbstractAction {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void storeRelayState(J2EContext context, String service) {
+    private void storeLogoutRedirectUrl(HttpServletRequest request, String service) {
         if (service != null) {
-            context.getSessionStore().set(context, SAML2StateGenerator.SAML_RELAY_STATE_ATTRIBUTE, service);
+            request.getSession().setAttribute("logoutRedirectUrl", service);
         }
     }
-    
-    private String getRelayState(J2EContext context) {
-        return context.getRequestParameter("RelayState");
+
+    private String getLogoutRedirectUrl(HttpServletRequest request) {
+        return (String) request.getSession().getAttribute("logoutRedirectUrl");
     }
 
 }
