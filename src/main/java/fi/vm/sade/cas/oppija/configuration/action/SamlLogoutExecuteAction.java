@@ -4,6 +4,7 @@ import org.apereo.cas.util.Pac4jUtils;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
+import org.pac4j.core.context.J2EContext;
 import org.pac4j.core.exception.TechnicalException;
 import org.pac4j.core.redirect.RedirectAction;
 import org.pac4j.saml.client.SAML2Client;
@@ -51,15 +52,17 @@ public class SamlLogoutExecuteAction extends AbstractAction {
                 var saml2Client = (SAML2Client) client;
                 LOGGER.debug("Located SAML2 client [{}]", saml2Client);
                 var service = request.getParameter("service");
-                if (service != null) {
-                    String requestUrl = String.join("?", request.getRequestURL(), request.getQueryString());
-                    context.getSessionStore().set(context, SAML2StateGenerator.SAML_RELAY_STATE_ATTRIBUTE, requestUrl);
-                }
+                storeRelayState(context, service);
                 var action = saml2Client.getLogoutAction(context, profile, null);
                 LOGGER.info("Preparing logout message to send is [{}]", action.getLocation());
                 return handleLogout(action, requestContext);
             } else {
                 LOGGER.info("The current client is not a SAML2 client or it cannot be found at all, no logout action will be executed.");
+                var relayState = getRelayState(context);
+                if (relayState != null) {
+                    LOGGER.info("RelayState received, setting logout redirect url: " + relayState);
+                    WebUtils.putLogoutRedirectUrl(requestContext, relayState);
+                }
             }
         } catch (final Exception e) {
             LOGGER.warn(e.getMessage(), e);
@@ -76,6 +79,17 @@ public class SamlLogoutExecuteAction extends AbstractAction {
             default:
                 throw new IllegalArgumentException("Unhandled logout request code: " + action.getType());
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void storeRelayState(J2EContext context, String service) {
+        if (service != null) {
+            context.getSessionStore().set(context, SAML2StateGenerator.SAML_RELAY_STATE_ATTRIBUTE, service);
+        }
+    }
+    
+    private String getRelayState(J2EContext context) {
+        return context.getRequestParameter("RelayState");
     }
 
 }
