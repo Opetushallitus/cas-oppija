@@ -160,7 +160,6 @@ bootWar {
         }
         archiveName "${casWebApplicationBinaryName}"
         baseName "cas"
-        excludeDevtools = true
     }
 }
 
