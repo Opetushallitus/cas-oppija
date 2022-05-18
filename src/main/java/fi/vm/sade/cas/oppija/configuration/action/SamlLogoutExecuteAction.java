@@ -39,8 +39,7 @@ public class SamlLogoutExecuteAction extends AbstractAction {
         try {
             var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
             var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
-            var context = new JEEContext(request, response); // TODO Oikein??
-
+            var context = new JEEContext(request, response);
 
             Client client;
             SAML2Profile profile = requestContext.getRequestScope().get(REQUEST_SCOPE_ATTRIBUTE_SAML_LOGOUT, SAML2Profile.class);
@@ -81,7 +80,6 @@ public class SamlLogoutExecuteAction extends AbstractAction {
         return client;
     }
 
-    // TODO fix tshis
     protected Event handleLogout(RedirectionAction action, RequestContext context) {
         if (action.getCode() == 302 && action instanceof FoundAction) {
             WebUtils.putLogoutRedirectUrl(context, ((FoundAction) action).getLocation());
