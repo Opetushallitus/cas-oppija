@@ -2,8 +2,8 @@
 # https://apereo.github.io/cas/6.5.x/configuration/Configuration-Management.html etc...
 cas:
   server:
-    name: "http://localhost:8080"
-    prefix: "http://localhost:8080/cas-oppija"
+    name: "http://localhost:8081"
+    prefix: "http://localhost:8081/cas-oppija"
   http-web-request:
     cors:
       allow-headers:
@@ -136,8 +136,8 @@ valtuudet.oauth-password: password
 service-user.username: user
 service-user.password: pass
 
-management.endpoints.web.exposure.include: springWebflow
-management.endpoint.springWebflow.enabled: true
-cas.monitor.endpoints.endpoint.springWebflow.access: IP_ADDRESS
-cas.monitor.endpoints.endpoint.springWebflow.required-ip-addresses: 127.0.0.1
+#management.endpoints.web.exposure.include: springWebflow
+#management.endpoint.springWebflow.enabled: true
+#cas.monitor.endpoints.endpoint.springWebflow.access: IP_ADDRESS
+#cas.monitor.endpoints.endpoint.springWebflow.required-ip-addresses: 127.0.0.1
 
