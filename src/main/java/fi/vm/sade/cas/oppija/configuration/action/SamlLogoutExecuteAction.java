@@ -65,15 +65,13 @@ public class SamlLogoutExecuteAction extends AbstractAction {
     }
 
     protected Event handleLogout(RedirectionAction action, RequestContext context) {
-        switch (action.getCode()) {
-            case 302:
-                if (action instanceof FoundAction) {
-                    WebUtils.putLogoutRedirectUrl(context, ((FoundAction) action).getLocation());
-                    return null;
-                }
-            default:
-                throw new IllegalArgumentException("Unhandled logout request code: " + action.getCode());
+        if (action.getCode() == 302) {
+            if (action instanceof FoundAction) {
+                WebUtils.putLogoutRedirectUrl(context, ((FoundAction) action).getLocation());
+                return null;
+            }
         }
+        throw new IllegalArgumentException("Unhandled logout request code: " + action.getCode());
     }
 
 }
