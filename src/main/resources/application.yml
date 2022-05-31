@@ -54,6 +54,7 @@ cas:
   webflow:
     session:
       storage: true
+      compress: false
 
 management.endpoint.health.enabled: true
 
