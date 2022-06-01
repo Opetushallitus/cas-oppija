@@ -64,10 +64,10 @@ cas:
       compress: false
 
 management:
-  endpoints:
-    web:
-      exposure:
-        include: springWebflow
+  #endpoints:
+  #  web:
+  #    exposure:
+  #      include: springWebflow
   endpoint:
     health:
       enabled: true
