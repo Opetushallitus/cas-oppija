@@ -65,7 +65,7 @@ public class SurrogateInterruptInquirer implements InterruptInquirer {
                 requestContext.getActiveFlow().getAttributes().get("valtuudet"),
                 isValtuudetEnabled,
                 clientName,
-                credential.getId(),
+                credential != null ? credential.getId() : credential ,
                 service);
 
         if (service != null && service.getId().contains("valtuudet=true")) {
