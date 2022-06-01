@@ -124,9 +124,8 @@ public class SamlClientConfiguration {
 
             @Override
             protected void configureClient(IndirectClient client, Pac4jBaseClientProperties props) {
-                super.configureClient(client, props);
                 Map<String, String> customProperties = casProperties.getCustom().getProperties();
-                if (client instanceof SAML2Client && (Objects.equals(customProperties.get("suomiFiClientName"), client.getName()) || Objects.equals(customProperties.get("fakeSuomiFiClientName"), client.getName()))) {
+                if (client instanceof SAML2Client && (Objects.equals(customProperties.get("suomiFiClientName"), props.getClientName()) || Objects.equals(customProperties.get("fakeSuomiFiClientName"), props.getClientName()))) {
                     SAML2Client saml2Client = (SAML2Client) client;
                     SAML2Configuration configuration = saml2Client.getConfiguration();
                     configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
@@ -135,6 +134,7 @@ public class SamlClientConfiguration {
                     });
                     configuration.setAuthnRequestExtensions(createExtensions());
                 }
+                super.configureClient(client, props);
             }
         };
     }
