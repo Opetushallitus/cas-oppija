@@ -130,6 +130,7 @@ public class SamlClientConfiguration {
                     SAML2Configuration configuration = saml2Client.getConfiguration();
                     configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
                     configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+                    configuration.setSpLogoutRequestSigned(true);
                     configuration.setLogoutHandler(new LogoutHandler() {
                     });
                     configuration.setAuthnRequestExtensions(createExtensions());
