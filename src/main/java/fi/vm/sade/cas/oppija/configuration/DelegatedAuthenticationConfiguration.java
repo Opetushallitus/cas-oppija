@@ -80,7 +80,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
 
     @Bean
     public Action delegatedAuthenticationClientLogoutAction() {
-        return new SamlLogoutExecuteAction(clientProvider(), sessionStore);
+        return new StoreServiceParamAction(casProperties);
     }
 
     @Bean
