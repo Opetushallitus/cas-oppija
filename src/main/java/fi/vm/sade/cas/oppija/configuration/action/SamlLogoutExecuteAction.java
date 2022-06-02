@@ -1,6 +1,7 @@
 
 package fi.vm.sade.cas.oppija.configuration.action;
 
+import org.apereo.cas.web.flow.actions.BaseCasWebflowAction;
 import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.context.JEEContext;
@@ -11,7 +12,6 @@ import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.profile.SAML2Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.webflow.action.AbstractAction;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
@@ -23,7 +23,7 @@ import static fi.vm.sade.cas.oppija.CasOppijaConstants.REQUEST_SCOPE_ATTRIBUTE_S
  * SAML logout action. Expects SAML profile to be in request scope ({@link SamlLogoutPrepareAction}).
  * Implementation is mostly derived from DelegatedAuthenticationSAML2ClientLogoutAction.
  */
-public class SamlLogoutExecuteAction extends AbstractAction {
+public class SamlLogoutExecuteAction extends BaseCasWebflowAction {
 
     private static final Logger SLF4J_LOGGER = LoggerFactory.getLogger(SamlLogoutExecuteAction.class);
 
@@ -40,9 +40,7 @@ public class SamlLogoutExecuteAction extends AbstractAction {
         try {
             var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
             var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
-            //var context = WebUtils.getPac4jJ2EContext(request, response);
-            var context = new JEEContext(request, response); // TODO Oikein??
-
+            var context = new JEEContext(request, response);
 
             SAML2Profile profile = requestContext.getRequestScope().get(REQUEST_SCOPE_ATTRIBUTE_SAML_LOGOUT, SAML2Profile.class);
             Client client = clientProvider.getClient(profile);

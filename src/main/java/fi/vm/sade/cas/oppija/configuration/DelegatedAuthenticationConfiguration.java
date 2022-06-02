@@ -4,7 +4,10 @@ import fi.vm.sade.cas.oppija.configuration.action.*;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.cookie.CasCookieBuilder;
-import org.apereo.cas.web.flow.*;
+import org.apereo.cas.web.flow.CasWebflowConfigurer;
+import org.apereo.cas.web.flow.CasWebflowConstants;
+import org.apereo.cas.web.flow.CasWebflowExecutionPlan;
+import org.apereo.cas.web.flow.CasWebflowExecutionPlanConfigurer;
 import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
 import org.apereo.cas.web.flow.configurer.DefaultLogoutWebflowConfigurer;
 import org.apereo.cas.web.support.gen.CookieRetrievingCookieGenerator;
@@ -23,6 +26,7 @@ import org.springframework.webflow.definition.TransitionDefinition;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.*;
 import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
+import org.springframework.webflow.execution.Action;
 
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
@@ -69,12 +73,23 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         this.sessionStore = sessionStore;
     }
 
+    @Bean
+    public Pac4jClientProvider clientProvider() {
+        return new Pac4jClientProvider(clients);
+    }
+
+    @Bean
+    public Action delegatedAuthenticationClientLogoutAction() {
+        return new SamlLogoutExecuteAction(clientProvider(), sessionStore);
+    }
+
+    @Bean
+    public Action delegatedAuthenticationClientFinishLogoutAction() {
+        return new SamlLogoutExecuteAction(clientProvider(), sessionStore);
+    }
+
     @Override
     public void configureWebflowExecutionPlan(CasWebflowExecutionPlan plan) {
-        // this is from default delegatedAuthenticationWebflowConfigurer bean:
-        plan.registerWebflowConfigurer(new DelegatedAuthenticationWebflowConfigurer(flowBuilderServices,
-                loginFlowDefinitionRegistry, logoutFlowDefinitionRegistry, applicationContext,
-                casProperties));
 
         /*
         @startuml
@@ -101,7 +116,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         }
         @enduml
         */
-        LOGGER.debug("default web flow configured");
+        LOGGER.debug("default delegateweb flow configured");
         plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
             protected void doInitialize() {
@@ -135,13 +150,17 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 setStartState(getLogoutFlow(), singleLogoutPrepareAction);
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction saml-initiated logout support");
 
-                TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
-                ActionList entryActionList = finishLogoutState.getEntryActionList();
-                clear(entryActionList, entryActionList::remove);
-                Pac4jClientProvider clientProvider = new Pac4jClientProvider(clients);
-                entryActionList.add(new StoreServiceParamAction(casProperties));
-                entryActionList.add(new SamlLogoutExecuteAction(clientProvider, sessionStore));
-                entryActionList.add(new ServiceRedirectAction(clientProvider));
+                TransitionableState terminateSessionState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_TERMINATE_SESSION);
+                terminateSessionState.getExitActionList().add(new ServiceRedirectAction(clientProvider()));
+
+                //                TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
+//                ActionList exitActionList = finishLogoutState.getExitActionList();
+//                ActionList entryActionList = terminateSessionState.getEntryActionList();
+//                clear(entryActionList, entryActionList::remove);
+//                clear(exitActionList, exitActionList::remove);
+//                Pac4jClientProvider clientProvider = new Pac4jClientProvider(clients);
+//                entryActionList.add(new StoreServiceParamAction(casProperties));
+//                entryActionList.add(new SamlLogoutExecuteAction(clientProvider, sessionStore));
                 LOGGER.debug("default web flow customization for delegateAuthentication 1st phase completed");
             }
         });
@@ -169,17 +188,6 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         // This CasWebflowExecutionPlanConfigurer must be run before SurrogateConfiguration to able to cancel auth
         // but after InterruptConfiguration to enable surrogate authentication after delegated authentication
         return Ordered.HIGHEST_PRECEDENCE + 1;
-    }
-
-    // override default delegatedAuthenticationWebflowConfigurer to be able to override its flow definitions (see above)
-    @Bean
-    public CasWebflowConfigurer delegatedAuthenticationWebflowConfigurer() {
-        return new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
-            @Override
-            protected void doInitialize() {
-                // nop
-            }
-        };
     }
 
     private static <E, T extends Iterable<E>> void clear(T iterable, Consumer<E> remover) {
