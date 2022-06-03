@@ -27,7 +27,7 @@ import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
-import static fi.vm.sade.cas.oppija.configuration.LogoutOnErrorDelegatedAuthenticationAction.TRANSITION_ID_LOGOUT;
+import static fi.vm.sade.cas.oppija.configuration.DelegatedAuthenticationActionConfiguration.TRANSITION_ID_LOGOUT;
 import static java.util.stream.Collectors.toList;
 import static org.apereo.cas.web.flow.CasWebflowConstants.TRANSITION_ID_SUCCESS;
 

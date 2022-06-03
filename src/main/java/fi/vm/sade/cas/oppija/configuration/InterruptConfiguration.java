@@ -42,7 +42,7 @@ import static java.util.stream.Collectors.toList;
 
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
-public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer, Ordered {
+public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer {
 
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
@@ -92,13 +92,6 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
 
     }
 
-    @Override
-    public int getOrder() {
-        // This CasWebflowExecutionPlanConfigurer must be run before DelegatedAuthenticationConfiguration to enable
-        // surrogate authentication after delegated authentication
-        return Ordered.HIGHEST_PRECEDENCE;
-    }
-
     private static <E, T extends Iterable<E>> void clear(T iterable, Consumer<E> remover) {
         StreamSupport.stream(iterable.spliterator(), false).collect(toList()).forEach(remover::accept);
     }
@@ -111,7 +104,14 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
             protected void doInitialize() {
                 // nop
             }
+            @Override
+            public int getOrder() {
+                // This CasWebflowExecutionPlanConfigurer must be run before DelegatedAuthenticationConfiguration to enable
+                // surrogate authentication after delegated authentication
+                return Ordered.HIGHEST_PRECEDENCE;
+            }
         };
+
     }
 
     // override default inquireInterruptAction to add new interruptRedirect transition
