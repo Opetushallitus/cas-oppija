@@ -77,7 +77,8 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         )
         {
             @Override
-            protected void doInitialize() {
+            protected void createDelegatedClientLogoutAction() {
+                // do not return logout actions
             }
 
             @Override
