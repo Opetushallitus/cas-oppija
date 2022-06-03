@@ -21,8 +21,8 @@ public class DelegatedAuthenticationActionConfiguration {
             final DelegatedClientAuthenticationWebflowManager delegatedClientAuthenticationWebflowManager
     ) {
         return new DelegatedClientAuthenticationAction(context, delegatedClientAuthenticationWebflowManager ) {
-            //@Override
-            /*public Event doExecute(RequestContext context) {
+            /*@Override
+            public Event doExecute(RequestContext context) {
                 HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
                 val response = WebUtils.getHttpServletResponseFromExternalWebflowContext(context);
                 if (isLogoutRequest(request)) {
@@ -32,9 +32,10 @@ public class DelegatedAuthenticationActionConfiguration {
                         Service service = populateContextWithService(context, webContext, clientName);
                         val client = findDelegatedClientByName(request, clientName, service);
                         WebUtils.putDelegatedAuthenticationClientName(context, client.getName());
-                        populateContextWithClientCredential(client, webContext, context)
+                        populateContextWithClientCredential(client, webContext, context);
+                        return null;
                     } catch (HttpAction e) {
-                        return handleLogout(e, context);
+                        return handleLogout(e, context, response);
                     }
                 }
                 return super.doExecute(context);
@@ -48,7 +49,7 @@ public class DelegatedAuthenticationActionConfiguration {
                 return super.stopWebflow(e, requestContext);
             }
 
-            /*private Event handleLogout(HttpAction httpAction, RequestContext requestContext) {
+           /* private Event handleLogout(HttpAction httpAction, RequestContext requestContext, HttpServletResponse response) {
                 if (httpAction.getCode() == 200) {
                     String redirectUrl = requestContext.getRequestParameters().get(PARAMETER_SAML_RELAY_STATE);
                     WebUtils.putLogoutRedirectUrl(requestContext, redirectUrl);
