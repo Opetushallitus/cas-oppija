@@ -7,7 +7,6 @@ import org.apereo.cas.web.flow.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationWebflowManager;
 import org.apereo.cas.web.support.WebUtils;
-import org.pac4j.core.context.HttpConstants;
 import org.pac4j.core.context.JEEContext;
 import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.saml.exceptions.SAMLException;
@@ -19,6 +18,8 @@ import org.springframework.webflow.execution.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import static fi.vm.sade.cas.oppija.CasOppijaConstants.PARAMETER_SAML_RELAY_STATE;
 
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
@@ -34,7 +35,6 @@ public class DelegatedAuthenticationActionConfiguration {
             public Event doExecute(RequestContext context) {
                 HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
                 val response = WebUtils.getHttpServletResponseFromExternalWebflowContext(context);
-
                 if (isLogoutRequest(request)) {
                     try {
                         val webContext = new JEEContext(request, response);
@@ -48,7 +48,7 @@ public class DelegatedAuthenticationActionConfiguration {
                         return handleLogout(e, context, response);
                     }
                 }
-            return super.doExecute(context);
+                return super.doExecute(context);
             }
 
             @Override
@@ -60,8 +60,8 @@ public class DelegatedAuthenticationActionConfiguration {
             }
 
             private Event handleLogout(HttpAction httpAction, RequestContext requestContext, HttpServletResponse response) {
-                if (httpAction.getCode() == 302) {
-                    String redirectUrl = response.getHeader(HttpConstants.LOCATION_HEADER);
+                if (httpAction.getCode() == 200) {
+                    String redirectUrl = requestContext.getRequestParameters().get(PARAMETER_SAML_RELAY_STATE);
                     WebUtils.putLogoutRedirectUrl(requestContext, redirectUrl);
                     return result(TRANSITION_ID_LOGOUT);
                 }

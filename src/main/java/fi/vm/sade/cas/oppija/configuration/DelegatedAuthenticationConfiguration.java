@@ -90,6 +90,11 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         };
     }
 
+    @Bean
+    Pac4jClientProvider clientProvider() {
+        return new Pac4jClientProvider(clients);
+    }
+
     @Override
     public void configureWebflowExecutionPlan(CasWebflowExecutionPlan plan) {
 
@@ -155,10 +160,9 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
 
                 TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
                 ActionList entryActionList = finishLogoutState.getExitActionList();
-                Pac4jClientProvider clientProvider = new Pac4jClientProvider(clients);
                 entryActionList.add(new StoreServiceParamAction(casProperties));
-                entryActionList.add(new SamlLogoutExecuteAction(clientProvider, sessionStore));
-                entryActionList.add(new ServiceRedirectAction(clientProvider));
+                entryActionList.add(new SamlLogoutExecuteAction(clientProvider(), sessionStore));
+                entryActionList.add(new ServiceRedirectAction(clientProvider()));
                 LOGGER.debug("default web flow customization for delegateAuthentication 1st phase completed");
             }
         });
