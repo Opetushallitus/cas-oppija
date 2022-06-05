@@ -156,7 +156,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 createStateDefaultTransition(singleLogoutPrepareAction, startState.getId());
                 setStartState(getLogoutFlow(), singleLogoutPrepareAction);
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction saml-initiated logout support");
-                TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
+                TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_DO_LOGOUT);
                 ActionList entryActionList = finishLogoutState.getExitActionList();
                 entryActionList.add(new StoreServiceParamAction(casProperties));
                 //entryActionList.add(new SamlLogoutExecuteAction(clientProvider(), sessionStore));
