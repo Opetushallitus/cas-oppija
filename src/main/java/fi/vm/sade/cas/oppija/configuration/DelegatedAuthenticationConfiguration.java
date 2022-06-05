@@ -143,7 +143,9 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
                 TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
                 createTransitionForState(state, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
-                createTransitionForState(state, TRANSITION_ID_LOGOUT, CasWebflowConstants.STATE_ID_DO_LOGOUT);
+                EndState returnFromIpdLogoutState = super.createEndState(getLoginFlow(), TRANSITION_ID_LOGOUT,
+                        '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
+                createTransitionForState(state, TRANSITION_ID_LOGOUT, returnFromIpdLogoutState.getId());
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction cancel transition target is now:{}", cancelState.getId());
                 // add delegatedAuthenticationAction logout transition
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction logout transition added");
