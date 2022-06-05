@@ -17,6 +17,8 @@ import org.springframework.webflow.execution.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static org.apereo.cas.web.flow.CasWebflowConstants.TRANSITION_ID_STOP;
+
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
     // override default delegatedAuthenticationAction to automatically logout on error
@@ -36,7 +38,7 @@ public class DelegatedAuthenticationActionConfiguration {
             public Event doExecute(RequestContext requestContext) {
                 HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
                 if (isLogoutRequest(request)) {
-                    return result(TRANSITION_ID_LOGOUT);
+                    return result(TRANSITION_ID_STOP);
                 }
                 return super.doExecute(requestContext);
             }

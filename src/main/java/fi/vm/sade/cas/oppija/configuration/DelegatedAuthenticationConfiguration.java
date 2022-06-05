@@ -19,7 +19,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.webflow.definition.TransitionDefinition;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.ActionList;
 import org.springframework.webflow.engine.ActionState;
@@ -30,9 +29,7 @@ import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
-import static fi.vm.sade.cas.oppija.configuration.DelegatedAuthenticationActionConfiguration.TRANSITION_ID_LOGOUT;
 import static java.util.stream.Collectors.toList;
-import static org.apereo.cas.web.flow.CasWebflowConstants.TRANSITION_ID_SUCCESS;
 
 
 /**
@@ -136,20 +133,20 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 LOGGER.trace("configuring additional web flow, url parameters collected");
 
                 // fix delegatedAuthenticationAction success transition
-                ActionState realSubmitState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
+                /*ActionState realSubmitState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
                 TransitionDefinition successTransition = realSubmitState.getTransition(TRANSITION_ID_SUCCESS);
                 String successTargetStateId = successTransition.getTargetStateId();
                 LOGGER.trace("ActionState {} has transition {} with target state: {} ", CasWebflowConstants.STATE_ID_REAL_SUBMIT, TRANSITION_ID_SUCCESS, successTargetStateId );
                 TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
                 createTransitionForState(state, TRANSITION_ID_SUCCESS, successTargetStateId, true);
                 LOGGER.trace("configuring additional web flow, State {}, transition {} target is set also to {}",CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION, TRANSITION_ID_SUCCESS, successTargetStateId);
-                // add delegatedAuthenticationAction cancel transition
+               */ // add delegatedAuthenticationAction cancel transition
                 EndState cancelState = super.createEndState(getLoginFlow(), CasWebflowConstants.TRANSITION_ID_CANCEL,
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
+                TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
                 createTransitionForState(state, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction cancel transition target is now:{}", cancelState.getId());
                 // add delegatedAuthenticationAction logout transition
-                createTransitionForState(state, TRANSITION_ID_LOGOUT, CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction logout transition added");
                 // add saml service provider initiated logout support
                 setLogoutFlowDefinitionRegistry(DelegatedAuthenticationConfiguration.this.logoutFlowDefinitionRegistry);
