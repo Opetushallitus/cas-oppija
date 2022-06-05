@@ -13,6 +13,7 @@ import org.pac4j.core.exception.http.HttpAction;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.exceptions.SAMLException;
 import org.pac4j.saml.profile.SAML2Profile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.webflow.execution.Action;
@@ -29,8 +30,11 @@ import static fi.vm.sade.cas.oppija.CasOppijaConstants.REQUEST_SCOPE_ATTRIBUTE_S
 public class DelegatedAuthenticationActionConfiguration {
     // override default delegatedAuthenticationAction to automatically logout on error
     static final String TRANSITION_ID_LOGOUT = "logout";
+    @Autowired
     private Pac4jClientProvider clientProvider;
+    @Autowired
     private SessionStore sessionStore;
+
     @Bean
     public Action delegatedAuthenticationAction(
             final DelegatedClientAuthenticationConfigurationContext context,
