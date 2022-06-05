@@ -75,10 +75,6 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 logoutFlowDefinitionRegistry, applicationContext, casProperties
         )
         {
-            //@Override
-            //protected void createDelegatedClientLogoutAction() {
-                // do not return logout actions
-           // }
 
             @Override
             public int getOrder() {
@@ -97,31 +93,6 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
     @Override
     public void configureWebflowExecutionPlan(CasWebflowExecutionPlan plan) {
 
-        /*
-        @startuml
-        state OPHCustomizationsForDelegatedAuthentication {
-        state LoginFlow {
-
-        [*] --> SamlLoginPrepareAction
-        SamlLoginPrepareAction: req params valtuudet & service to context param map
-
-        STATE_ID_REAL_SUBMIT --> successTargetStateX : TRANSITION_ID_SUCCESS
-        STATE_ID_REAL_SUBMIT: *original*
-        STATE_ID_DELEGATED_AUTHENTICATION: *custom*
-        STATE_ID_DELEGATED_AUTHENTICATION --> successTargetStateX : TRANSITION_ID_SUCCESS
-        STATE_ID_DELEGATED_AUTHENTICATION --> STATE_ID_LOGOUT_VIEW  : TRANSITION_ID_CANCEL
-        STATE_ID_DELEGATED_AUTHENTICATION --> STATE_ID_TERMINATE_SESSION : TRANSITION_ID_LOGOUT
-        }
-        ---
-        state LogoutFlow {
-        [*] --> samlLogoutPrepareAction : set as default entry transition!
-        STATE_ID_FINISH_LOGOUT --> [*]
-        StoreServiceParamsAction --> STATE_ID_FINISH_LOGOUT : entryAction: for storing service\n(from request) to cookie _oph_service
-        SamlLogoutExecuteAction --> STATE_ID_FINISH_LOGOUT : entryAction: logout action obtained from \n REQUEST_SCOPE_ATTRIBUTE_SAML_LOGOUT\nand redirect url put to flow scope.
-        }
-        }
-        @enduml
-        */
         LOGGER.debug("default delegateweb flow configured");
         plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
@@ -131,15 +102,6 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 startActionList.add(new SamlLoginPrepareAction(getLoginFlow()));
                 LOGGER.trace("configuring additional web flow, url parameters collected");
 
-                // fix delegatedAuthenticationAction success transition
-                /*ActionState realSubmitState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
-                TransitionDefinition successTransition = realSubmitState.getTransition(TRANSITION_ID_SUCCESS);
-                String successTargetStateId = successTransition.getTargetStateId();
-                LOGGER.trace("ActionState {} has transition {} with target state: {} ", CasWebflowConstants.STATE_ID_REAL_SUBMIT, TRANSITION_ID_SUCCESS, successTargetStateId );
-                TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
-                createTransitionForState(state, TRANSITION_ID_SUCCESS, successTargetStateId, true);
-                LOGGER.trace("configuring additional web flow, State {}, transition {} target is set also to {}",CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION, TRANSITION_ID_SUCCESS, successTargetStateId);
-               */
                 // add delegatedAuthenticationAction cancel transition
                 EndState cancelState = super.createEndState(getLoginFlow(), CasWebflowConstants.TRANSITION_ID_CANCEL,
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
@@ -164,28 +126,10 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
                 ActionList entryActionList = finishLogoutState.getExitActionList();
                 entryActionList.add(new StoreServiceParamAction(casProperties));
-                //entryActionList.add(new SamlLogoutExecuteAction(clientProvider(), sessionStore));
                 entryActionList.add(new ServiceRedirectAction(clientProvider()));
                 LOGGER.debug("default web flow customization for delegateAuthentication 1st phase completed");
             }
         });
-
-        /*plan.registerWebflowConfigurer(new DefaultLogoutWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
-            @Override
-            protected void doInitialize() {
-                // add logout flow to login flow to be able logout from delegatedAuthenticationAction
-                Flow flow = getLogoutFlow();
-                StateDefinition startState = flow.getStartState();
-                super.doInitialize();
-                flow.setStartState(startState.getId());
-                LOGGER.debug("login Flow customized for delegateAuthentication logout");
-            }
-
-            @Override
-            public Flow getLogoutFlow() {
-                return getLoginFlow();
-            }
-        });*/
     }
 
     private static <E, T extends Iterable<E>> void clear(T iterable, Consumer<E> remover) {

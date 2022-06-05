@@ -1,14 +1,11 @@
 package fi.vm.sade.cas.oppija.configuration;
 
-import fi.vm.sade.cas.oppija.configuration.action.Pac4jClientProvider;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationWebflowManager;
 import org.apereo.cas.web.support.WebUtils;
-import org.opensaml.saml.common.SAMLException;
-import org.pac4j.core.context.session.SessionStore;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.pac4j.saml.exceptions.SAMLException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.webflow.execution.Action;
@@ -21,10 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 public class DelegatedAuthenticationActionConfiguration {
     // override default delegatedAuthenticationAction to automatically logout on error
     static final String TRANSITION_ID_LOGOUT = "IdpLogout";
-    @Autowired
-    private Pac4jClientProvider clientProvider;
-    @Autowired
-    private SessionStore sessionStore;
 
     @Bean
     public Action delegatedAuthenticationAction(
@@ -48,15 +41,6 @@ public class DelegatedAuthenticationActionConfiguration {
                 }
                 return super.stopWebflow(e, requestContext);
             }
-
-           /*private Event handleLogout(HttpAction httpAction, RequestContext requestContext) {
-                if (httpAction.getCode() == 200) {
-                    String redirectUrl = requestContext.getRequestParameters().get(PARAMETER_SAML_RELAY_STATE);
-                    WebUtils.putLogoutRedirectUrl(requestContext, redirectUrl);
-                    return result(TRANSITION_ID_LOGOUT);
-                }
-                throw new IllegalArgumentException("Unhandled logout response code: " + httpAction.getCode());
-            }*/
         };
     }
 }
