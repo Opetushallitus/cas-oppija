@@ -5,6 +5,7 @@ import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationWebflowManager;
+import org.apereo.cas.web.support.WebUtils;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.saml.exceptions.SAMLException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.webflow.execution.Action;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
+
+import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
@@ -31,19 +34,10 @@ public class DelegatedAuthenticationActionConfiguration {
         return new DelegatedClientAuthenticationAction(context, delegatedClientAuthenticationWebflowManager ) {
             @Override
             public Event doExecute(RequestContext requestContext) {
-                /*HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-                HttpServletResponse response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
-                JEEContext context = new JEEContext(request, response);
+                HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
                 if (isLogoutRequest(request)) {
-                    try {
-                        SAML2Profile profile = requestContext.getRequestScope().get(REQUEST_SCOPE_ATTRIBUTE_SAML_LOGOUT, SAML2Profile.class);
-                        SAML2Client client = (SAML2Client) clientProvider.getClient(profile);
-                        val samlContext = client.getContextProvider().buildContext(client, context, sessionStore);
-                        client.getLogoutProfileHandler().receive(samlContext);
-                        } catch (final HttpAction action) {
-                            return handleLogout(action, requestContext);
-                        }
-                }*/
+                    return result(TRANSITION_ID_LOGOUT);
+                }
                 return super.doExecute(requestContext);
             }
 
