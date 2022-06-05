@@ -6,8 +6,8 @@ import org.apereo.cas.web.flow.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationWebflowManager;
 import org.apereo.cas.web.support.WebUtils;
+import org.opensaml.saml.common.SAMLException;
 import org.pac4j.core.context.session.SessionStore;
-import org.pac4j.saml.exceptions.SAMLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +16,6 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
-
-import static org.apereo.cas.web.flow.CasWebflowConstants.TRANSITION_ID_STOP;
 
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
@@ -38,7 +36,7 @@ public class DelegatedAuthenticationActionConfiguration {
             public Event doExecute(RequestContext requestContext) {
                 HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
                 if (isLogoutRequest(request)) {
-                    return result(TRANSITION_ID_STOP);
+                    return result(TRANSITION_ID_LOGOUT);
                 }
                 return super.doExecute(requestContext);
             }
