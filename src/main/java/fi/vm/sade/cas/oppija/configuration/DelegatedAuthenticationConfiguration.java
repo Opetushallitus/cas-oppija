@@ -1,8 +1,6 @@
 package fi.vm.sade.cas.oppija.configuration;
 
-import fi.vm.sade.cas.oppija.configuration.action.Pac4jClientProvider;
-import fi.vm.sade.cas.oppija.configuration.action.SamlLoginPrepareAction;
-import fi.vm.sade.cas.oppija.configuration.action.SamlLogoutPrepareAction;
+import fi.vm.sade.cas.oppija.configuration.action.*;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
 import org.apereo.cas.web.cookie.CasCookieBuilder;
@@ -145,7 +143,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
                 TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
                 createTransitionForState(state, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
-                createTransitionForState(state, TRANSITION_ID_LOGOUT, CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
+                createTransitionForState(state, TRANSITION_ID_LOGOUT, CasWebflowConstants.STATE_ID_TERMINATE_SESSION);
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction cancel transition target is now:{}", cancelState.getId());
                 // add delegatedAuthenticationAction logout transition
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction logout transition added");
@@ -158,11 +156,11 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 createStateDefaultTransition(singleLogoutPrepareAction, startState.getId());
                 setStartState(getLogoutFlow(), singleLogoutPrepareAction);
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction saml-initiated logout support");
-                //TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
-                //ActionList entryActionList = finishLogoutState.getExitActionList();
-                //entryActionList.add(new StoreServiceParamAction(casProperties));
-                //entryActionList.add(new SamlLogoutExecuteAction(clientProvider(), sessionStore));
-                //entryActionList.add(new ServiceRedirectAction(clientProvider()));
+                TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
+                ActionList entryActionList = finishLogoutState.getExitActionList();
+                entryActionList.add(new StoreServiceParamAction(casProperties));
+                entryActionList.add(new SamlLogoutExecuteAction(clientProvider(), sessionStore));
+                entryActionList.add(new ServiceRedirectAction(clientProvider()));
                 LOGGER.debug("default web flow customization for delegateAuthentication 1st phase completed");
             }
         });
