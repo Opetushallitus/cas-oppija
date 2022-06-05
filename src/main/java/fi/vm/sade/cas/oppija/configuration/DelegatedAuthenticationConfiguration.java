@@ -149,7 +149,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 createTransitionForState(state, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction cancel transition target is now:{}", cancelState.getId());
                 // add delegatedAuthenticationAction logout transition
-                createTransitionForState(state, TRANSITION_ID_LOGOUT, CasWebflowConstants.STATE_ID_TERMINATE_SESSION);
+                createTransitionForState(state, TRANSITION_ID_LOGOUT, CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction logout transition added");
                 // add saml service provider initiated logout support
                 setLogoutFlowDefinitionRegistry(DelegatedAuthenticationConfiguration.this.logoutFlowDefinitionRegistry);
@@ -158,7 +158,6 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 ActionState singleLogoutPrepareAction = createActionState(getLogoutFlow(), "samlLogoutPrepareAction",
                         new SamlLogoutPrepareAction(ticketGrantingTicketCookieGenerator, ticketRegistrySupport));
                 createStateDefaultTransition(singleLogoutPrepareAction, startState.getId());
-                createTransitionForState(startState, TRANSITION_ID_LOGOUT, CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
                 setStartState(getLogoutFlow(), singleLogoutPrepareAction);
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction saml-initiated logout support");
 
