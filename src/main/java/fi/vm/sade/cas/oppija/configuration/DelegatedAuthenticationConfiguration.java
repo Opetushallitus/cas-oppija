@@ -159,7 +159,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 TransitionableState finishLogoutState = getState(getLogoutFlow(), CasWebflowConstants.STATE_ID_FINISH_LOGOUT);
                 ActionList entryActionList = finishLogoutState.getExitActionList();
                 entryActionList.add(new StoreServiceParamAction(casProperties));
-                entryActionList.add(new SamlLogoutExecuteAction(clientProvider(), sessionStore));
+                //entryActionList.add(new SamlLogoutExecuteAction(clientProvider(), sessionStore));
                 entryActionList.add(new ServiceRedirectAction(clientProvider()));
                 LOGGER.debug("default web flow customization for delegateAuthentication 1st phase completed");
             }
