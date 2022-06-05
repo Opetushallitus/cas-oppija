@@ -27,6 +27,7 @@ import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
+import static fi.vm.sade.cas.oppija.configuration.DelegatedAuthenticationActionConfiguration.TRANSITION_ID_LOGOUT;
 import static java.util.stream.Collectors.toList;
 
 
@@ -138,14 +139,16 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
                 createTransitionForState(state, TRANSITION_ID_SUCCESS, successTargetStateId, true);
                 LOGGER.trace("configuring additional web flow, State {}, transition {} target is set also to {}",CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION, TRANSITION_ID_SUCCESS, successTargetStateId);
-               */ // add delegatedAuthenticationAction cancel transition
+               */
+                // add delegatedAuthenticationAction cancel transition
                 EndState cancelState = super.createEndState(getLoginFlow(), CasWebflowConstants.TRANSITION_ID_CANCEL,
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
                 TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
                 createTransitionForState(state, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
-                /*EndState returnFromIpdLogoutState = super.createEndState(getLoginFlow(), TRANSITION_ID_LOGOUT,
+                // add delegatedAuthenticationAction logout from idp (Suomifi) redirect to login flow
+                EndState returnFromIpdLogoutState = super.createEndState(getLoginFlow(), TRANSITION_ID_LOGOUT,
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
-                createTransitionForState(state, TRANSITION_ID_LOGOUT, returnFromIpdLogoutState.getId());*/
+                createTransitionForState(state, TRANSITION_ID_LOGOUT, returnFromIpdLogoutState.getId());
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction cancel transition target is now:{}", cancelState.getId());
                 // add delegatedAuthenticationAction logout transition
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction logout transition added");

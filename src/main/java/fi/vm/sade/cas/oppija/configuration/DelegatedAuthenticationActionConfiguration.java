@@ -1,7 +1,6 @@
 package fi.vm.sade.cas.oppija.configuration;
 
 import fi.vm.sade.cas.oppija.configuration.action.Pac4jClientProvider;
-import lombok.SneakyThrows;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
@@ -17,7 +16,6 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
@@ -34,13 +32,11 @@ public class DelegatedAuthenticationActionConfiguration {
             final DelegatedClientAuthenticationWebflowManager delegatedClientAuthenticationWebflowManager
     ) {
         return new DelegatedClientAuthenticationAction(context, delegatedClientAuthenticationWebflowManager ) {
-            @SneakyThrows
             @Override
             public Event doExecute(RequestContext requestContext) {
                 HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-                HttpServletResponse response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
                 if (isLogoutRequest(request)) {
-                    response.sendRedirect("logout");
+                    return result(TRANSITION_ID_LOGOUT); // this endState transition is rediricting to logout from idp!
                 }
                 return super.doExecute(requestContext);
             }
