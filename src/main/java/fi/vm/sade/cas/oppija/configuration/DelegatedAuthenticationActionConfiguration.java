@@ -18,8 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
     // override default delegatedAuthenticationAction to automatically logout on error
-    static final String TRANSITION_ID_LOGOUT = "IdpLogout";
-
     @Bean
     public Action delegatedAuthenticationAction(
             final DelegatedClientAuthenticationConfigurationContext context,
