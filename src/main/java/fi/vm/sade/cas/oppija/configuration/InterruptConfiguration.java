@@ -67,7 +67,7 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
     @Override
     public void configureWebflowExecutionPlan(CasWebflowExecutionPlan plan) {
         // this is from default interruptWebflowConfigurer bean:
-        plan.registerWebflowConfigurer(new InterruptWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties));
+        //plan.registerWebflowConfigurer(new InterruptWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties));
 
         plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
@@ -99,7 +99,7 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
     // override default interruptWebflowConfigurer to be able to override its flow definitions (see above)
     @Bean
     public CasWebflowConfigurer interruptWebflowConfigurer() {
-        return new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
+        return new InterruptWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
             public int getOrder() {
                 // This CasWebflowExecutionPlanConfigurer must be run before DelegatedAuthenticationConfiguration to enable

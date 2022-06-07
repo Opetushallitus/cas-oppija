@@ -1,5 +1,6 @@
 package fi.vm.sade.cas.oppija.configuration;
 
+import fi.vm.sade.cas.oppija.CasOppijaConstants;
 import fi.vm.sade.cas.oppija.configuration.action.*;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.ticket.registry.TicketRegistrySupport;
@@ -27,7 +28,6 @@ import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
-import static fi.vm.sade.cas.oppija.configuration.DelegatedAuthenticationActionConfiguration.TRANSITION_ID_LOGOUT;
 import static java.util.stream.Collectors.toList;
 
 
@@ -105,12 +105,14 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 // add delegatedAuthenticationAction cancel transition
                 EndState cancelState = super.createEndState(getLoginFlow(), CasWebflowConstants.TRANSITION_ID_CANCEL,
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
-                TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
-                createTransitionForState(state, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
+                TransitionableState delegatedAuthenticationState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
+                createTransitionForState(delegatedAuthenticationState, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
                 // add delegatedAuthenticationAction logout from idp (Suomifi) redirect to login flow
-                EndState returnFromIpdLogoutState = super.createEndState(getLoginFlow(), TRANSITION_ID_LOGOUT,
-                        '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
-                createTransitionForState(state, TRANSITION_ID_LOGOUT, returnFromIpdLogoutState.getId());
+                ActionState IdpLogoutActionState = createActionState(getLoginFlow(), CasOppijaConstants.STATE_ID_IDP_LOGOUT, CasWebflowConstants.ACTION_ID_DELEGATED_AUTHENTICATION_CLIENT_FINISH_LOGOUT);
+                createTransitionForState(delegatedAuthenticationState, CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT, IdpLogoutActionState.getId());
+                //EndState returnFromIpdLogoutState = super.createEndState(getLoginFlow(), TRANSITION_ID_LOGOUT,
+                //        '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
+                //createTransitionForState(delegatedAuthenticationState, TRANSITION_ID_LOGOUT, returnFromIpdLogoutState.getId());
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction cancel transition target is now:{}", cancelState.getId());
                 // add delegatedAuthenticationAction logout transition
                 LOGGER.trace("configuring additional web flow, delegatedAuthenticationAction logout transition added");

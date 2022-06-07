@@ -1,5 +1,6 @@
 package fi.vm.sade.cas.oppija.configuration;
 
+import fi.vm.sade.cas.oppija.CasOppijaConstants;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
@@ -29,7 +30,7 @@ public class DelegatedAuthenticationActionConfiguration {
             public Event doExecute(RequestContext requestContext) {
                 HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
                 if (isLogoutRequest(request)) {
-                    return result(TRANSITION_ID_LOGOUT); // this endState transition is rediricting to logout from idp!
+                    return result(CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT);
                 }
                 return super.doExecute(requestContext);
             }
