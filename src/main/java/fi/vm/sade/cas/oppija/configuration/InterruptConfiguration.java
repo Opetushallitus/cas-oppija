@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.webflow.action.ExternalRedirectAction;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
+import org.springframework.webflow.engine.ActionList;
 import org.springframework.webflow.engine.ActionState;
 import org.springframework.webflow.engine.EndState;
 import org.springframework.webflow.engine.TransitionSet;
@@ -30,6 +31,10 @@ import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
+
+import static java.util.stream.Collectors.toList;
 
 
 /**
@@ -79,7 +84,7 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                 valtuudetRedirectEndstate.getEntryActionList().add(new ExternalRedirectAction(expression));
             }
         });
-        /*plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
+        plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
             protected void doInitialize() {
                 // fix interrupt inquirers called twice after successful login
@@ -88,13 +93,13 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                 clear(actions, actions::remove);
                 actions.add(super.createEvaluateAction(CasWebflowConstants.ACTION_ID_CREATE_TICKET_GRANTING_TICKET));
             }
-        });*/
+        });
 
     }
 
-    /*private static <E, T extends Iterable<E>> void clear(T iterable, Consumer<E> remover) {
+    private static <E, T extends Iterable<E>> void clear(T iterable, Consumer<E> remover) {
         StreamSupport.stream(iterable.spliterator(), false).collect(toList()).forEach(remover::accept);
-    }*/
+    }
 
     // override default interruptWebflowConfigurer to be able to override its flow definitions (see above)
     @Bean
