@@ -36,7 +36,7 @@ import static java.util.stream.Collectors.toList;
  */
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
-public class DelegatedAuthenticationConfiguration implements CasWebflowExecutionPlanConfigurer {
+public class DelegatedAuthenticationConfiguration implements CasWebflowExecutionPlanConfigurer, Ordered {
     private static final Logger LOGGER = LoggerFactory.getLogger(DelegatedAuthenticationConfiguration.class);
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
@@ -68,7 +68,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
         this.sessionStore = sessionStore;
     }
 
-    @Bean
+    /*@Bean
     public CasWebflowConfigurer delegatedAuthenticationWebflowConfigurer() {
         return new DelegatedAuthenticationWebflowConfigurer(
                 flowBuilderServices, loginFlowDefinitionRegistry,
@@ -83,7 +83,7 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 return Ordered.HIGHEST_PRECEDENCE + 1;
             }
         };
-    }
+    }*/
 
     @Bean
     Pac4jClientProvider clientProvider() {
@@ -134,6 +134,12 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 LOGGER.debug("default web flow customization for delegateAuthentication 1st phase completed");
             }
         });
+    }
+    @Override
+    public int getOrder() {
+        // This CasWebflowExecutionPlanConfigurer must be run before SurrogateConfiguration to able to cancel auth
+        // but after InterruptConfiguration to enable surrogate authentication after delegated authentication
+        return Ordered.HIGHEST_PRECEDENCE + 1;
     }
 
     private static <E, T extends Iterable<E>> void clear(T iterable, Consumer<E> remover) {
