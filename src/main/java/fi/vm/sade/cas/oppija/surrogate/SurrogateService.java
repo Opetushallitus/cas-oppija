@@ -9,6 +9,6 @@ public interface SurrogateService {
     String getRedirectUrl(Service service, String nationalIdentificationNumber, String language,
                           SurrogateImpersonatorData impersonatorData);
 
-    SurrogateAuthenticationDto getAuthentication(String token, String code) throws GeneralSecurityException;
+    SurrogateAuthenticationDto getAuthentication(String token, String code, boolean isServiceTicketResolverEvent) throws GeneralSecurityException;
 
 }
