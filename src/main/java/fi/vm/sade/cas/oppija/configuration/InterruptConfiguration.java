@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.webflow.action.ExternalRedirectAction;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
-import org.springframework.webflow.engine.ActionList;
 import org.springframework.webflow.engine.ActionState;
 import org.springframework.webflow.engine.EndState;
 import org.springframework.webflow.engine.TransitionSet;
@@ -34,7 +33,9 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
+import static fi.vm.sade.cas.oppija.CasOppijaConstants.*;
 import static java.util.stream.Collectors.toList;
+import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_CREATE_TICKET_GRANTING_TICKET;
 
 
 /**
@@ -76,15 +77,15 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
             @Override
             protected void doInitialize() {
                 // add redirect transition
-                ActionState inquireInterruptAction = getState(getLoginFlow(), "inquireInterruptAction", ActionState.class);
-                TransitionSet transitions = inquireInterruptAction.getTransitionSet();
-                transitions.add(createTransition("interruptRedirect", "redirectInterrupt"));
-                EndState valtuudetRedirectEndstate = createEndState(getLoginFlow(), "redirectInterrupt");
-                Expression expression = createExpression("flowScope.interruptRedirectUrl");
+                EndState valtuudetRedirectEndstate = createEndState(getLoginFlow(), STATE_ID_VALTUUDET_INTERRUPT_ACTION);
+                Expression expression = createExpression("flowScope.".concat(VALTUUDET_REDIRECT_URL_PARAMETER));
                 valtuudetRedirectEndstate.getEntryActionList().add(new ExternalRedirectAction(expression));
+                ActionState tgtActionState = getState(getLoginFlow(), STATE_ID_CREATE_TICKET_GRANTING_TICKET, ActionState.class);
+                TransitionSet transitions = tgtActionState.getTransitionSet();
+                transitions.add(createTransition(TRANSITION_ID_VALTUUDET_INTERRUPT , STATE_ID_VALTUUDET_INTERRUPT_ACTION));
             }
         });
-        plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
+        /*plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
             protected void doInitialize() {
                 // fix interrupt inquirers called twice after successful login
@@ -93,7 +94,7 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                 clear(actions, actions::remove);
                 actions.add(super.createEvaluateAction(CasWebflowConstants.ACTION_ID_CREATE_TICKET_GRANTING_TICKET));
             }
-        });
+        });*/
 
     }
 
@@ -126,9 +127,9 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                     InterruptResponse interruptResponse = InterruptUtils.getInterruptFrom(requestContext);
                     if (interruptResponse.isAutoRedirect() && interruptResponse.getAutoRedirectAfterSeconds() < 0
                             && interruptResponse.getLinks().size() > 0) {
-                        requestContext.getFlowScope().put("interruptRedirectUrl",
+                        requestContext.getFlowScope().put(VALTUUDET_REDIRECT_URL_PARAMETER,
                                 interruptResponse.getLinks().values().iterator().next());
-                        return result("interruptRedirect");
+                        return result(TRANSITION_ID_VALTUUDET_INTERRUPT);
                     }
                 }
                 return event;
