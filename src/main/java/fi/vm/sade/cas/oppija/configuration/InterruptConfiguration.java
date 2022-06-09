@@ -35,7 +35,7 @@ import java.util.stream.StreamSupport;
 
 import static fi.vm.sade.cas.oppija.CasOppijaConstants.*;
 import static java.util.stream.Collectors.toList;
-import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_CREATE_TICKET_GRANTING_TICKET;
+import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_GENERATE_SERVICE_TICKET;
 
 
 /**
@@ -80,8 +80,8 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                 EndState valtuudetRedirectEndstate = createEndState(getLoginFlow(), STATE_ID_VALTUUDET_INTERRUPT_ACTION);
                 Expression expression = createExpression("flowScope.".concat(VALTUUDET_REDIRECT_URL_PARAMETER));
                 valtuudetRedirectEndstate.getEntryActionList().add(new ExternalRedirectAction(expression));
-                ActionState tgtActionState = getState(getLoginFlow(), STATE_ID_CREATE_TICKET_GRANTING_TICKET, ActionState.class);
-                TransitionSet transitions = tgtActionState.getTransitionSet();
+                ActionState serviceTicketActionState = getState(getLoginFlow(), STATE_ID_GENERATE_SERVICE_TICKET, ActionState.class);
+                TransitionSet transitions = serviceTicketActionState.getTransitionSet();
                 transitions.add(createTransition(TRANSITION_ID_VALTUUDET_INTERRUPT , STATE_ID_VALTUUDET_INTERRUPT_ACTION));
             }
         });
