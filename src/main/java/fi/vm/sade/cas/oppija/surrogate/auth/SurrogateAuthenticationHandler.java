@@ -52,7 +52,7 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
 
     public AuthenticationHandlerExecutionResult authenticate(SurrogateCredential credential) throws GeneralSecurityException, PreventedException {
         try {
-            SurrogateAuthenticationDto dto = surrogateService.getAuthentication(credential.getId(), credential.getCode(), credential.getAuthenticationAttributes() == null);
+            SurrogateAuthenticationDto dto = surrogateService.getAuthentication(credential.getId(), credential.getCode());
             credential.setAuthenticationAttributes(dto.impersonatorData.authenticationAttributes);
             return createHandlerResult(credential, createPrincipal(dto));
         } catch (Exception e) {

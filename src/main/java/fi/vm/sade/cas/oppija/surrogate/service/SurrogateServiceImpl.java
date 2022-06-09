@@ -78,7 +78,7 @@ public class SurrogateServiceImpl implements SurrogateService {
         return redirectUrlBuilder.toUriString();
     }
 
-    public SurrogateAuthenticationDto getAuthentication(String token, String code, boolean isServiceTicketResolverEvent) throws GeneralSecurityException {
+    public SurrogateAuthenticationDto getAuthentication(String token, String code) throws GeneralSecurityException {
         TransientSessionTicket ticket = ticketRegistry.getTicket(token, TransientSessionTicket.class);
         if (ticket == null) {
             String message = String.format("Session '%s' does not exist", token);
@@ -98,9 +98,7 @@ public class SurrogateServiceImpl implements SurrogateService {
         }
 
         try {
-            if (!isServiceTicketResolverEvent) {
-                ticketRegistry.deleteTicket(ticket);
-            }
+            ticketRegistry.deleteTicket(ticket);
         } catch (Exception e) {
             throw new GeneralSecurityException("ticket registry delete operation failed", e);
         }
