@@ -18,7 +18,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.webflow.definition.TransitionDefinition;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
 import org.springframework.webflow.engine.ActionList;
 import org.springframework.webflow.engine.ActionState;
@@ -104,17 +103,15 @@ public class DelegatedAuthenticationConfiguration implements CasWebflowExecution
                 startActionList.add(new SamlLoginPrepareAction(getLoginFlow()));
                 LOGGER.trace("configuring additional web flow, url parameters collected");
 
-                ActionState realSubmitState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_REAL_SUBMIT, ActionState.class);
-                TransitionDefinition successTransition = realSubmitState.getTransition(TRANSITION_ID_SUCCESS);
-                String successTargetStateId = successTransition.getTargetStateId();
-                TransitionableState state = getState(getLoginFlow(), CasWebflowConstants.ACTION_ID_DELEGATED_AUTHENTICATION);
-                createTransitionForState(state, TRANSITION_ID_SUCCESS, successTargetStateId, true);
+                ActionState interruptActionState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_INQUIRE_INTERRUPT_ACTION, ActionState.class);
+                TransitionableState delegatedAuthenticationState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
+                createTransitionForState(delegatedAuthenticationState, TRANSITION_ID_SUCCESS, interruptActionState.getId(), true);
 
                 // add delegatedAuthenticationAction cancel transition
                 EndState cancelState = super.createEndState(getLoginFlow(), CasWebflowConstants.TRANSITION_ID_CANCEL,
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
-                TransitionableState delegatedAuthenticationState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
                 createTransitionForState(delegatedAuthenticationState, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
+
                 // add delegatedAuthenticationAction logout from idp (Suomifi) redirect to login flow
                 ActionState IdpLogoutActionState = createActionState(getLoginFlow(), CasOppijaConstants.STATE_ID_IDP_LOGOUT, CasWebflowConstants.ACTION_ID_DELEGATED_AUTHENTICATION_CLIENT_FINISH_LOGOUT);
                 createTransitionForState(delegatedAuthenticationState, CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT, IdpLogoutActionState.getId());

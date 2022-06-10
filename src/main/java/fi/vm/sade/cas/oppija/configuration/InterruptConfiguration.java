@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.webflow.action.ExternalRedirectAction;
 import org.springframework.webflow.definition.registry.FlowDefinitionRegistry;
+import org.springframework.webflow.engine.ActionList;
 import org.springframework.webflow.engine.ActionState;
 import org.springframework.webflow.engine.EndState;
 import org.springframework.webflow.engine.TransitionSet;
@@ -35,7 +36,7 @@ import java.util.stream.StreamSupport;
 
 import static fi.vm.sade.cas.oppija.CasOppijaConstants.*;
 import static java.util.stream.Collectors.toList;
-import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_GENERATE_SERVICE_TICKET;
+import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_INQUIRE_INTERRUPT_ACTION;
 
 
 /**
@@ -80,12 +81,12 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                 EndState valtuudetRedirectEndstate = createEndState(getLoginFlow(), STATE_ID_VALTUUDET_INTERRUPT_ACTION);
                 Expression expression = createExpression("flowScope.".concat(VALTUUDET_REDIRECT_URL_PARAMETER));
                 valtuudetRedirectEndstate.getEntryActionList().add(new ExternalRedirectAction(expression));
-                ActionState serviceTicketActionState = getState(getLoginFlow(), STATE_ID_GENERATE_SERVICE_TICKET, ActionState.class);
+                ActionState serviceTicketActionState = getState(getLoginFlow(), STATE_ID_INQUIRE_INTERRUPT_ACTION, ActionState.class);
                 TransitionSet transitions = serviceTicketActionState.getTransitionSet();
                 transitions.add(createTransition(TRANSITION_ID_VALTUUDET_INTERRUPT , STATE_ID_VALTUUDET_INTERRUPT_ACTION));
             }
         });
-        /*plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
+        plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
             protected void doInitialize() {
                 // fix interrupt inquirers called twice after successful login
@@ -94,7 +95,7 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
                 clear(actions, actions::remove);
                 actions.add(super.createEvaluateAction(CasWebflowConstants.ACTION_ID_CREATE_TICKET_GRANTING_TICKET));
             }
-        });*/
+        });
 
     }
 
