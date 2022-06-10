@@ -1,5 +1,6 @@
-package fi.vm.sade.cas.oppija.surrogate.auth;
+package fi.vm.sade.cas.oppija.configuration.webflow;
 
+import fi.vm.sade.cas.oppija.configuration.action.SurrogateAuthenticationAction;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
 import org.apereo.cas.web.flow.CasWebflowConstants;

@@ -1,6 +1,7 @@
-package fi.vm.sade.cas.oppija.configuration;
+package fi.vm.sade.cas.oppija.configuration.webflow;
 
 
+import fi.vm.sade.cas.oppija.configuration.InterruptInquiryExecutionPlanConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.interrupt.InterruptInquirer;
 import org.apereo.cas.interrupt.InterruptResponse;
@@ -47,7 +48,7 @@ import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_INQUIRE_INTER
 
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
-public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer {
+public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanConfigurer {
 
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
@@ -55,11 +56,11 @@ public class InterruptConfiguration implements CasWebflowExecutionPlanConfigurer
     private final CasConfigurationProperties casProperties;
     private final CasCookieBuilder ticketGrantingTicketCookieGenerator;
 
-    public InterruptConfiguration(FlowBuilderServices flowBuilderServices,
-                                  @Qualifier("loginFlowRegistry") FlowDefinitionRegistry loginFlowDefinitionRegistry,
-                                  ConfigurableApplicationContext applicationContext,
-                                  CasConfigurationProperties casProperties,
-                                  @Qualifier("ticketGrantingTicketCookieGenerator")
+    public InterruptWebflowConfiguration(FlowBuilderServices flowBuilderServices,
+                                         @Qualifier("loginFlowRegistry") FlowDefinitionRegistry loginFlowDefinitionRegistry,
+                                         ConfigurableApplicationContext applicationContext,
+                                         CasConfigurationProperties casProperties,
+                                         @Qualifier("ticketGrantingTicketCookieGenerator")
                                   CasCookieBuilder ticketGrantingTicketCookieGenerator
     ) {
         this.flowBuilderServices = flowBuilderServices;
