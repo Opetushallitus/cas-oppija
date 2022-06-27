@@ -70,7 +70,7 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
             personService.findOidByNationalIdentificationNumber(dto.nationalIdentificationNumber)
                     .ifPresent(oid -> attributes.put(ATTRIBUTE_NAME_PERSON_OID, List.of(oid)));
         } catch (Exception e) {
-            LOGGER.error("Unable to get oid by national identification number", e);
+            LOGGER.error("Unable to get oid by national identification number: {}", dto.nationalIdentificationNumber, e);
         }
         attributes.put(ATTRIBUTE_NAME_PERSON_NAME, List.of(dto.name));
         return principalFactory.createPrincipal(id, attributes);
