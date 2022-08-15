@@ -32,7 +32,7 @@ cas.ticket.registry.redis.port: 6379
 
 cas.authn.pac4j.saml:
   - client-name: ${cas.custom.properties.suomiFiClientName}
-    auto-redirect-type: {{ cas_oppija_fakesuomifi_auto_redirect_type | default('CLIENT') }}
+    auto-redirect-type: {{ cas_oppija_suomifi_auto_redirect_type | default('CLIENT') }}
     keystore-path: {{ cas_oppija_suomifi_keystore_path }}
     keystore-password: {{ cas_oppija_suomifi_keystore_password }}
     keystore-alias: {{ cas_oppija_suomifi_keystore_alias }}
