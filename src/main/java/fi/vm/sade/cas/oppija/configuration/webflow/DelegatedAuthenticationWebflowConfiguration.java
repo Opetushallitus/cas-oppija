@@ -30,9 +30,9 @@ import org.springframework.webflow.engine.builder.support.FlowBuilderServices;
 
 import static org.apereo.cas.web.flow.CasWebflowConstants.TRANSITION_ID_SUCCESS;
 
-
 /**
- * This class should include only fixes to default cas delegated authentication configuration.
+ * This class should include only fixes to default cas delegated authentication
+ * configuration.
  */
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
@@ -41,6 +41,7 @@ public class DelegatedAuthenticationWebflowConfiguration implements CasWebflowEx
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
     private final FlowDefinitionRegistry logoutFlowDefinitionRegistry;
+    private final FlowDefinitionRegistry delegationRedirectFlowRegistry;
     private final ConfigurableApplicationContext applicationContext;
     private final CasConfigurationProperties casProperties;
     private final CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator;
@@ -49,17 +50,19 @@ public class DelegatedAuthenticationWebflowConfiguration implements CasWebflowEx
     private final SessionStore sessionStore;
 
     public DelegatedAuthenticationWebflowConfiguration(FlowBuilderServices flowBuilderServices,
-                                                       @Qualifier(CasWebflowConstants.BEAN_NAME_LOGIN_FLOW_DEFINITION_REGISTRY) FlowDefinitionRegistry loginFlowDefinitionRegistry,
-                                                       @Qualifier(CasWebflowConstants.BEAN_NAME_LOGOUT_FLOW_DEFINITION_REGISTRY) FlowDefinitionRegistry logoutFlowDefinitionRegistry,
-                                                       ConfigurableApplicationContext applicationContext,
-                                                       CasConfigurationProperties casProperties,
-                                                       @Qualifier(CasCookieBuilder.BEAN_NAME_TICKET_GRANTING_COOKIE_BUILDER) CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator,
-                                                       TicketRegistrySupport ticketRegistrySupport,
-                                                       Clients clients,
-                                                       SessionStore sessionStore) {
+            @Qualifier(CasWebflowConstants.BEAN_NAME_LOGIN_FLOW_DEFINITION_REGISTRY) FlowDefinitionRegistry loginFlowDefinitionRegistry,
+            @Qualifier(CasWebflowConstants.BEAN_NAME_LOGOUT_FLOW_DEFINITION_REGISTRY) FlowDefinitionRegistry logoutFlowDefinitionRegistry,
+            @Qualifier("delegatedClientRedirectFlowRegistry") FlowDefinitionRegistry delegationRedirectFlowRegistry,
+            ConfigurableApplicationContext applicationContext,
+            CasConfigurationProperties casProperties,
+            @Qualifier(CasCookieBuilder.BEAN_NAME_TICKET_GRANTING_COOKIE_BUILDER) CookieRetrievingCookieGenerator ticketGrantingTicketCookieGenerator,
+            TicketRegistrySupport ticketRegistrySupport,
+            Clients clients,
+            SessionStore sessionStore) {
         this.flowBuilderServices = flowBuilderServices;
         this.loginFlowDefinitionRegistry = loginFlowDefinitionRegistry;
         this.logoutFlowDefinitionRegistry = logoutFlowDefinitionRegistry;
+        this.delegationRedirectFlowRegistry = delegationRedirectFlowRegistry;
         this.applicationContext = applicationContext;
         this.casProperties = casProperties;
         this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
@@ -72,14 +75,14 @@ public class DelegatedAuthenticationWebflowConfiguration implements CasWebflowEx
     public CasWebflowConfigurer delegatedAuthenticationWebflowConfigurer() {
         return new DelegatedAuthenticationWebflowConfigurer(
                 flowBuilderServices, loginFlowDefinitionRegistry,
-                logoutFlowDefinitionRegistry, applicationContext, casProperties
-        )
-        {
+                logoutFlowDefinitionRegistry, delegationRedirectFlowRegistry, applicationContext, casProperties) {
 
             @Override
             public int getOrder() {
-                // This CasWebflowExecutionPlanConfigurer must be run before SurrogateConfiguration to able to cancel auth
-                // but after InterruptConfiguration to enable surrogate authentication after delegated authentication
+                // This CasWebflowExecutionPlanConfigurer must be run before
+                // SurrogateConfiguration to able to cancel auth
+                // but after InterruptConfiguration to enable surrogate authentication after
+                // delegated authentication
                 return Ordered.HIGHEST_PRECEDENCE + 1;
             }
         };
@@ -93,37 +96,52 @@ public class DelegatedAuthenticationWebflowConfiguration implements CasWebflowEx
     @Override
     public void configureWebflowExecutionPlan(CasWebflowExecutionPlan plan) {
 
-        plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
+        plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices,
+                loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
             protected void doInitialize() {
-                /* Initial login action to collect url parameters: valtuudet & services
-                 StartActionList from loginflow gets run before initial state, so SamlLoginPrepareAction is always run in login flow.
-                 It maybe could be replaced with a new decicisionState
+                /*
+                 * Initial login action to collect url parameters: valtuudet & services
+                 * StartActionList from loginflow gets run before initial state, so
+                 * SamlLoginPrepareAction is always run in login flow.
+                 * It maybe could be replaced with a new decicisionState
                  */
                 ActionList startActionList = getLoginFlow().getStartActionList();
                 startActionList.add(new SamlLoginPrepareAction(getLoginFlow()));
 
-                /* Delegated authentication state success transition is modified to redirect to STATE_ID_INQUIRE_INTERRUPT_ACTION */
-                ActionState interruptActionState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_INQUIRE_INTERRUPT_ACTION, ActionState.class);
-                TransitionableState delegatedAuthenticationState = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
-                createTransitionForState(delegatedAuthenticationState, TRANSITION_ID_SUCCESS, interruptActionState.getId(), true);
+                /*
+                 * Delegated authentication state success transition is modified to redirect to
+                 * STATE_ID_INQUIRE_INTERRUPT_ACTION
+                 */
+                ActionState interruptActionState = getState(getLoginFlow(),
+                        CasWebflowConstants.STATE_ID_INQUIRE_INTERRUPT, ActionState.class);
+                TransitionableState delegatedAuthenticationState = getState(getLoginFlow(),
+                        CasWebflowConstants.STATE_ID_DELEGATED_AUTHENTICATION);
+                createTransitionForState(delegatedAuthenticationState, TRANSITION_ID_SUCCESS,
+                        interruptActionState.getId(), true);
 
                 // add delegatedAuthenticationAction cancel transition to logout
                 EndState cancelState = super.createEndState(getLoginFlow(), CasWebflowConstants.TRANSITION_ID_CANCEL,
                         '\'' + CasWebflowConfigurer.FLOW_ID_LOGOUT + '\'', true);
-                createTransitionForState(delegatedAuthenticationState, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());
+                createTransitionForState(delegatedAuthenticationState, CasWebflowConstants.TRANSITION_ID_CANCEL,
+                        cancelState.getId());
 
-                // add delegatedAuthenticationAction logout from idp (Suomifi) redirect to login flow. Check delegatedAuthenticationAction.
-                ActionState idpLogoutActionState = createActionState(getLoginFlow(), CasOppijaConstants.STATE_ID_IDP_LOGOUT, CasWebflowConstants.ACTION_ID_DELEGATED_AUTHENTICATION_CLIENT_FINISH_LOGOUT);
-                createTransitionForState(delegatedAuthenticationState, CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT, idpLogoutActionState.getId());
+                // add delegatedAuthenticationAction logout from idp (Suomifi) redirect to login
+                // flow. Check delegatedAuthenticationAction.
+                ActionState idpLogoutActionState = createActionState(getLoginFlow(),
+                        CasOppijaConstants.STATE_ID_IDP_LOGOUT,
+                        CasWebflowConstants.ACTION_ID_DELEGATED_AUTHENTICATION_CLIENT_FINISH_LOGOUT);
+                createTransitionForState(delegatedAuthenticationState, CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT,
+                        idpLogoutActionState.getId());
                 idpLogoutActionState.getExitActionList().add(new ServiceRedirectAction());
                 createStateDefaultTransition(idpLogoutActionState, CasWebflowConstants.TRANSITION_ID_REDIRECT);
 
-                //Logout flow starts from terminate session state, Here we add the storage of return url action to a cookie when logout starts
-                setLogoutFlowDefinitionRegistry(DelegatedAuthenticationWebflowConfiguration.this.logoutFlowDefinitionRegistry);
+                // Logout flow starts from terminate session state, Here we add the storage of
+                // return url action to a cookie when logout starts
+                setLogoutFlowDefinitionRegistry(
+                        DelegatedAuthenticationWebflowConfiguration.this.logoutFlowDefinitionRegistry);
                 getLogoutFlow().getStartActionList().add(new StoreServiceParamAction(casProperties));
             }
         });
     }
 }
-

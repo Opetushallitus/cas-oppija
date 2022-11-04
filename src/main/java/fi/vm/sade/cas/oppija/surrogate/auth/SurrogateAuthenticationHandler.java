@@ -8,6 +8,7 @@ import org.apereo.cas.authentication.*;
 import org.apereo.cas.authentication.metadata.BasicCredentialMetaData;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
+import org.apereo.cas.authentication.principal.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +29,8 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
     private final PrincipalFactory principalFactory;
 
     public SurrogateAuthenticationHandler(SurrogateService surrogateService,
-                                          PersonService personService,
-                                          PrincipalFactory principalFactory) {
+            PersonService personService,
+            PrincipalFactory principalFactory) {
         this.surrogateService = surrogateService;
         this.personService = personService;
         this.principalFactory = principalFactory;
@@ -46,13 +47,16 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
     }
 
     @Override
-    public AuthenticationHandlerExecutionResult authenticate(Credential credential) throws GeneralSecurityException, PreventedException {
+    public AuthenticationHandlerExecutionResult authenticate(Credential credential, Service service)
+            throws GeneralSecurityException, PreventedException {
         return authenticate((SurrogateCredential) credential);
     }
 
-    public AuthenticationHandlerExecutionResult authenticate(SurrogateCredential credential) throws GeneralSecurityException, PreventedException {
+    public AuthenticationHandlerExecutionResult authenticate(SurrogateCredential credential)
+            throws GeneralSecurityException, PreventedException {
         try {
-            SurrogateAuthenticationDto dto = surrogateService.getAuthentication(credential.getId(), credential.getCode());
+            SurrogateAuthenticationDto dto = surrogateService.getAuthentication(credential.getId(),
+                    credential.getCode());
             credential.setAuthenticationAttributes(dto.impersonatorData.authenticationAttributes);
             return createHandlerResult(credential, createPrincipal(dto));
         } catch (Exception e) {
@@ -80,8 +84,10 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
         return String.format("impersonator%s", capitalize(key));
     }
 
-    private AuthenticationHandlerExecutionResult createHandlerResult(SurrogateCredential credential, Principal principal) {
-        return new DefaultAuthenticationHandlerExecutionResult(this, new BasicCredentialMetaData(credential), principal);
+    private AuthenticationHandlerExecutionResult createHandlerResult(SurrogateCredential credential,
+            Principal principal) {
+        return new DefaultAuthenticationHandlerExecutionResult(this, new BasicCredentialMetaData(credential),
+                principal);
     }
 
 }

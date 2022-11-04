@@ -9,10 +9,12 @@ import org.apereo.cas.authentication.principal.PrincipalFactoryUtils;
 import org.apereo.cas.authentication.principal.provision.DelegatedClientUserProfileProvisioner;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.Pac4jBaseClientProperties;
+import org.apereo.cas.configuration.model.support.pac4j.Pac4jDelegatedAuthenticationCoreProperties;
+import org.apereo.cas.configuration.support.Beans;
 import org.apereo.cas.services.ServicesManager;
-import org.apereo.cas.support.pac4j.authentication.DefaultDelegatedClientFactory;
-import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactory;
-import org.apereo.cas.support.pac4j.authentication.DelegatedClientFactoryCustomizer;
+import org.apereo.cas.support.pac4j.authentication.clients.DefaultDelegatedClientFactory;
+import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactory;
+import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.support.pac4j.authentication.handler.support.DelegatedClientAuthenticationHandler;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
@@ -25,6 +27,7 @@ import org.pac4j.core.logout.handler.LogoutHandler;
 import org.pac4j.core.profile.UserProfile;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
+import org.pac4j.saml.store.SAMLMessageStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -34,6 +37,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.i18n.LocaleContextHolder;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import javax.xml.namespace.QName;
 import java.util.*;
@@ -55,7 +61,8 @@ public class SamlClientConfiguration {
         this.casProperties = casProperties;
     }
 
-    // override bean Pac4jAuthenticationEventExecutionPlanConfiguration#clientPrincipalFactory
+    // override bean
+    // Pac4jAuthenticationEventExecutionPlanConfiguration#clientPrincipalFactory
     @Bean
     public PrincipalFactory clientPrincipalFactory(PersonService personService) {
         return new OidAttributePrincipalFactory(personService);
@@ -74,7 +81,8 @@ public class SamlClientConfiguration {
         @Override
         public Principal createPrincipal(String id, Map<String, List<Object>> attributes) {
             try {
-                resolveNationalIdentificationNumber(attributes).flatMap(this::findOidByNationalIdentificationNumber).ifPresent((String oid) -> attributes.put(ATTRIBUTE_NAME_PERSON_OID, List.of(oid)));
+                resolveNationalIdentificationNumber(attributes).flatMap(this::findOidByNationalIdentificationNumber)
+                        .ifPresent((String oid) -> attributes.put(ATTRIBUTE_NAME_PERSON_OID, List.of(oid)));
             } catch (Exception e) {
                 LOGGER.error("Unable to get oid by national identification number", e);
             }
@@ -92,11 +100,17 @@ public class SamlClientConfiguration {
 
     }
 
-    // override bean Pac4jAuthenticationEventExecutionPlanConfiguration#clientAuthenticationHandler
+    // override bean
+    // Pac4jAuthenticationEventExecutionPlanConfiguration#clientAuthenticationHandler
     @Bean
-    public AuthenticationHandler clientAuthenticationHandler(ObjectProvider<ServicesManager> servicesManager, PersonService personService, Clients builtClients, @Qualifier(DelegatedClientUserProfileProvisioner.BEAN_NAME) final DelegatedClientUserProfileProvisioner clientUserProfileProvisioner, @Qualifier("delegatedClientDistributedSessionStore") final SessionStore delegatedClientDistributedSessionStore) {
+    public AuthenticationHandler clientAuthenticationHandler(ObjectProvider<ServicesManager> servicesManager,
+            PersonService personService, Clients builtClients,
+            @Qualifier(DelegatedClientUserProfileProvisioner.BEAN_NAME) final DelegatedClientUserProfileProvisioner clientUserProfileProvisioner,
+            @Qualifier("delegatedClientDistributedSessionStore") final SessionStore delegatedClientDistributedSessionStore) {
         var pac4j = casProperties.getAuthn().getPac4j().getCore();
-        var h = new DelegatedClientAuthenticationHandler(pac4j.getName(), pac4j.getOrder(), servicesManager.getIfAvailable(), clientPrincipalFactory(personService), builtClients, clientUserProfileProvisioner, delegatedClientDistributedSessionStore) {
+        var h = new DelegatedClientAuthenticationHandler(pac4j.getName(), pac4j.getOrder(),
+                servicesManager.getIfAvailable(), clientPrincipalFactory(personService), builtClients,
+                clientUserProfileProvisioner, delegatedClientDistributedSessionStore) {
             @Override
             protected String determinePrincipalIdFrom(UserProfile profile, BaseClient client) {
                 String id = super.determinePrincipalIdFrom(profile, client);
@@ -109,35 +123,48 @@ public class SamlClientConfiguration {
     }
 
     @Bean
-    public DelegatedClientFactory<IndirectClient> pac4jDelegatedClientFactory(Collection<DelegatedClientFactoryCustomizer> customizers, CasSSLContext casSSLContext, ApplicationContext applicationContext) {
-        return new DefaultDelegatedClientFactory(casProperties, customizers, casSSLContext, applicationContext) {
-
+    public DelegatedClientFactory pac4jDelegatedClientFactory(
+            Collection<DelegatedClientFactoryCustomizer> customizers, CasSSLContext casSSLContext,
+            ApplicationContext applicationContext, ObjectProvider<SAMLMessageStoreFactory> samlMessageStoreFactory) {
+        Pac4jDelegatedAuthenticationCoreProperties core = casProperties.getAuthn().getPac4j().getCore();
+        Cache<String, Collection<IndirectClient>> clientsCache = Caffeine.newBuilder()
+                .maximumSize(core.getCacheSize())
+                .expireAfterAccess(Beans.newDuration(core.getCacheDuration()))
+                .<String, Collection<IndirectClient>>build();
+        return new DefaultDelegatedClientFactory(casProperties, customizers, casSSLContext, samlMessageStoreFactory,
+                clientsCache) {
             @Override
-            protected void configureClient(IndirectClient client, Pac4jBaseClientProperties props) {
-                super.configureClient(client, props);
+            protected Collection<IndirectClient> loadClients() {
+                Collection<IndirectClient> clients = buildSaml2IdentityProviders(casProperties);
                 Map<String, String> customProperties = casProperties.getCustom().getProperties();
-                if (client instanceof SAML2Client && (Objects.equals(customProperties.get("suomiFiClientName"), client.getName()) || Objects.equals(customProperties.get("fakeSuomiFiClientName"), client.getName()))) {
-                    SAML2Client saml2Client = (SAML2Client) client;
-                    SAML2Configuration configuration = saml2Client.getConfiguration();
-                    configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
-                    configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
-                    configuration.setSpLogoutRequestSigned(true);
-                    configuration.setLogoutHandler(new LogoutHandler() {
-                    });
-                    configuration.setAuthnRequestExtensions(createExtensions());
-                    client.init();
+                for (IndirectClient client : clients) {
+                    if (client instanceof SAML2Client
+                            && (Objects.equals(customProperties.get("suomiFiClientName"), client.getName())
+                                    || Objects.equals(customProperties.get("fakeSuomiFiClientName"),
+                                            client.getName()))) {
+                        SAML2Client saml2Client = (SAML2Client) client;
+                        SAML2Configuration configuration = saml2Client.getConfiguration();
+                        configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+                        configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
+                        configuration.setSpLogoutRequestSigned(true);
+                        configuration.setLogoutHandler(new LogoutHandler() {
+                        });
+                        configuration.setAuthnRequestExtensions(createExtensions());
+                        client.init();
+                    }
                 }
+                return clients;
             }
         };
     }
 
     private Supplier<List<XSAny>> createExtensions() {
         return () -> {
-            String language = Optional.of(LocaleContextHolder.getLocale()).map(Locale::getLanguage).filter(SUPPORTED_LANGUAGES::contains).orElse(DEFAULT_LANGUAGE);
+            String language = Optional.of(LocaleContextHolder.getLocale()).map(Locale::getLanguage)
+                    .filter(SUPPORTED_LANGUAGES::contains).orElse(DEFAULT_LANGUAGE);
             return List.of(createLanguageExtension(language));
         };
     }
-
 
     /**
      * <vetuma xmlns="urn:vetuma:SAML:2.0:extensions">
@@ -154,4 +181,3 @@ public class SamlClientConfiguration {
     }
 
 }
-

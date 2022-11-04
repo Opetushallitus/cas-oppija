@@ -1,8 +1,10 @@
 package fi.vm.sade.cas.oppija.configuration.action;
 
 import fi.vm.sade.cas.oppija.CasOppijaConstants;
+
+import org.apereo.cas.pac4j.client.DelegatedClientAuthenticationFailureEvaluator;
 import org.apereo.cas.web.flow.CasWebflowConstants;
-import org.apereo.cas.web.flow.DelegatedClientAuthenticationAction;
+import org.apereo.cas.web.flow.actions.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationWebflowManager;
 import org.apereo.cas.web.support.WebUtils;
@@ -17,13 +19,15 @@ import javax.servlet.http.HttpServletRequest;
 
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
-    // override default delegatedAuthenticationAction to automatically logout on error
+    // override default delegatedAuthenticationAction to automatically logout on
+    // error
     @Bean
     public Action delegatedAuthenticationAction(
             final DelegatedClientAuthenticationConfigurationContext context,
-            final DelegatedClientAuthenticationWebflowManager delegatedClientAuthenticationWebflowManager
-    ) {
-        return new DelegatedClientAuthenticationAction(context, delegatedClientAuthenticationWebflowManager ) {
+            final DelegatedClientAuthenticationWebflowManager delegatedClientAuthenticationWebflowManager,
+            final DelegatedClientAuthenticationFailureEvaluator failureEvaluator) {
+        return new DelegatedClientAuthenticationAction(context, delegatedClientAuthenticationWebflowManager,
+                failureEvaluator) {
             @Override
             public Event doExecute(RequestContext requestContext) {
                 HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
