@@ -23,20 +23,6 @@ public class RegisteredServiceConfiguration {
     }
 
     @Bean
-    public RegisteredServiceProxyPolicy registeredServiceProxyPolicy() {
-        return new RegexMatchingRegisteredServiceProxyPolicy() {
-            @Override
-            public boolean isAllowedProxyCallbackUrl(final RegisteredService registeredService, final URL pgtUrl) {
-                var patternToUse = environment.getRequiredProperty("whitelist.regexp");
-                if (!RegexUtils.isValidRegex(patternToUse)) {
-                    return false;
-                }
-                return RegexUtils.find(patternToUse, pgtUrl.toExternalForm());
-            }
-        };
-    }
-
-    @Bean
     public RegisteredServiceAttributeReleasePolicy registeredServiceAttributeReleasePolicy() {
         return new CasOppijaAttributeReleasePolicy();
     }
@@ -69,7 +55,6 @@ public class RegisteredServiceConfiguration {
         // strategy.setDelegatedAuthenticationPolicy(policy);
         // regexRegisteredService.setAccessStrategy(strategy);
         regexRegisteredService.setServiceId(environment.getRequiredProperty("whitelist.regexp"));
-        regexRegisteredService.setProxyPolicy(registeredServiceProxyPolicy());
         regexRegisteredService.setAttributeReleasePolicy(registeredServiceAttributeReleasePolicy());
         return singletonList(regexRegisteredService);
     }
