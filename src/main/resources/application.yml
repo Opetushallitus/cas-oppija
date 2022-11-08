@@ -139,3 +139,4 @@ cas.monitor.endpoints.endpoint.health.access: PERMIT
 #cas.monitor.endpoints.endpoint.springWebflow.access: IP_ADDRESS
 #cas.monitor.endpoints.endpoint.springWebflow.required-ip-addresses: 127.0.0.1
 
+logging.level.root: TRACE
