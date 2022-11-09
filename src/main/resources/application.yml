@@ -1,5 +1,5 @@
 # CAS configuration
-# https://apereo.github.io/cas/6.5.x/configuration/Configuration-Management.html etc...
+# https://apereo.github.io/cas/6.6.x/configuration/Configuration-Management.html etc...
 cas:
   server:
     name: "http://localhost:8081"

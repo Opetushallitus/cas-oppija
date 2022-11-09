@@ -95,7 +95,7 @@ public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanCon
             @Override
             protected void doInitialize() {
                 // fix interrupt inquirers called twice after successful login (this seems to
-                // actually be needed in 6.5 cause the flow is defaultly interrupted multiple
+                // actually be needed in 6.6 cause the flow is defaultly interrupted multiple
                 // times).
                 ActionState state = getState(getLoginFlow(), CasWebflowConstants.STATE_ID_CREATE_TICKET_GRANTING_TICKET,
                         ActionState.class);
