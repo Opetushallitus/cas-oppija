@@ -14,13 +14,14 @@ import org.apereo.cas.ticket.TicketGrantingTicket;
 import org.apereo.cas.ticket.registry.TicketRegistry;
 import org.apereo.cas.web.cookie.CasCookieBuilder;
 import org.apereo.cas.web.support.ArgumentExtractor;
+import org.jooq.lambda.Unchecked;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -48,10 +49,10 @@ public class UserController {
     @GetMapping(value = "/current/attributes", produces = MediaType.APPLICATION_JSON_VALUE)
     //TODO: return Map value type  changed from Object to List<Object>!!!!
     public Map<String, List<Object>> getAttributes(HttpServletRequest request) {
-        return wrapExceptionToApplicationException(() -> getAttributesInternal(request));
+        return wrapExceptionToApplicationException(Unchecked.supplier(() -> getAttributesInternal(request)));
     }
 
-    private Map<String, List<Object>> getAttributesInternal(HttpServletRequest request) {
+    private Map<String, List<Object>> getAttributesInternal(HttpServletRequest request) throws Throwable {
         Principal principal = getPrincipal(request);
         Service service = getService(request);
         RegisteredService registeredService = getRegisteredService(service);

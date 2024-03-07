@@ -19,7 +19,7 @@ public class ServiceRedirectAction extends AbstractServiceParamAction {
     }
 
     @Override
-    protected Event doExecute(RequestContext context) {
+    protected Event doExecuteInternal(RequestContext context) throws Exception {
         var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
         var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(context);
         val webContext = new JEEContext(request, response);

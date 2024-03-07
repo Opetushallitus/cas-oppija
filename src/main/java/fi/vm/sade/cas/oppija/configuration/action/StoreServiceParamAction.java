@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
+import java.util.Objects;
+
 public class StoreServiceParamAction extends AbstractServiceParamAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StoreServiceParamAction.class);
@@ -17,10 +19,14 @@ public class StoreServiceParamAction extends AbstractServiceParamAction {
     }
 
     @Override
-    protected Event doExecute(RequestContext requestContext) {
+    protected Event doExecuteInternal(RequestContext requestContext) {
         var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
         var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
-        var service = request.getParameter(casProperties.getLogout().getRedirectParameter());
+        var service = casProperties.getLogout().getRedirectParameter().stream()
+                .map(request::getParameter)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
         if (service != null) {
             setServiceRedirectCookie(response, service);
             LOGGER.debug("Set service redirect cookie to value: " + service);

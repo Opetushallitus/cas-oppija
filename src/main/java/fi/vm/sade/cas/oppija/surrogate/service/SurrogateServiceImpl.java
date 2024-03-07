@@ -47,24 +47,28 @@ public class SurrogateServiceImpl implements SurrogateService {
 
     public String getRedirectUrl(org.apereo.cas.authentication.principal.Service service, String nationalIdentificationNumber, String language,
                                  SurrogateImpersonatorData impersonatorData) {
-        TransientSessionTicket ticket = transientSessionTicketFactory.create(service);
-
-        String callbackUrl = createCallbackUrl(service, ticket.getId());
-        SessionDto session = valtuudetClient.createSession(ValtuudetType.PERSON, nationalIdentificationNumber);
-        String redirectUrl = valtuudetClient.getRedirectUrl(session.userId, callbackUrl, language);
-
-        ticket.put(ATTRIBUTE_NAME_SURROGATE, new SurrogateData(impersonatorData,
-                new SurrogateRequestData(callbackUrl, session.sessionId)));
-
-
         try {
-            ticketRegistry.addTicket(ticket);
-        } catch (Exception e) {
-            LOGGER.warn("saving to ticketstore failed {}", e.getMessage());
-            return null;
-        }
+            TransientSessionTicket ticket = transientSessionTicketFactory.create(service);
 
-        return redirectUrl;
+            String callbackUrl = createCallbackUrl(service, ticket.getId());
+            SessionDto session = valtuudetClient.createSession(ValtuudetType.PERSON, nationalIdentificationNumber);
+            String redirectUrl = valtuudetClient.getRedirectUrl(session.userId, callbackUrl, language);
+
+            ticket.put(ATTRIBUTE_NAME_SURROGATE, new SurrogateData(impersonatorData,
+                    new SurrogateRequestData(callbackUrl, session.sessionId)));
+
+
+            try {
+                ticketRegistry.addTicket(ticket);
+            } catch (Exception e) {
+                LOGGER.warn("saving to ticketstore failed {}", e.getMessage());
+                return null;
+            }
+
+            return redirectUrl;
+        } catch (Throwable t) {
+            throw new RuntimeException(t); // NOSONAR
+        }
     }
 
     private String createCallbackUrl(org.apereo.cas.authentication.principal.Service service, String token) {

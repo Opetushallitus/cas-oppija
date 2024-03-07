@@ -4,12 +4,12 @@ import fi.vm.sade.javautils.http.OphHttpClient;
 import fi.vm.sade.javautils.http.auth.CasAuthenticator;
 import fi.vm.sade.javautils.httpclient.apache.ApacheOphHttpClient;
 import fi.vm.sade.properties.OphProperties;
-import org.apache.http.client.CookieStore;
-import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
-import org.apache.http.impl.NoConnectionReuseStrategy;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.cookie.BasicClientCookie;
-import org.apache.http.message.BasicHeader;
+import org.apache.hc.client5.http.cookie.BasicCookieStore;
+import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.impl.cookie.BasicClientCookie;
+import org.apache.hc.client5.http.socket.LayeredConnectionSocketFactory;
+import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.apereo.cas.authentication.CasSSLContext;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.core.authentication.HttpClientProperties;
@@ -88,7 +88,6 @@ public class CallerIdHttpClientConfiguration {
         SimpleHttpClientFactoryBean.DefaultHttpClient c = new SimpleHttpClientFactoryBean.DefaultHttpClient();
         HttpClientProperties httpClient = casProperties.getHttpClient();
         c.setConnectionTimeout(Beans.newDuration(httpClient.getConnectionTimeout()).toMillis());
-        c.setReadTimeout((int) Beans.newDuration(httpClient.getReadTimeout()).toMillis());
         c.setDefaultHeaders(
                 Arrays.asList(
                         new BasicHeader("Caller-Id", CALLER_ID),
@@ -98,7 +97,7 @@ public class CallerIdHttpClientConfiguration {
         CookieStore cookieStore = new BasicCookieStore();
         cookieStore.addCookie(new BasicClientCookie("CSRF", CALLER_ID));
         c.setCookieStore(cookieStore);
-        c.setConnectionReuseStrategy(NoConnectionReuseStrategy.INSTANCE);
+        c.setConnectionReuseStrategy(DefaultConnectionReuseStrategy.INSTANCE);
         return c;
     }
 

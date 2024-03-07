@@ -2,9 +2,9 @@ package fi.vm.sade.cas.oppija.configuration.action;
 
 import org.apereo.cas.web.flow.actions.BaseCasWebflowAction;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 
 public abstract class AbstractServiceParamAction extends BaseCasWebflowAction {

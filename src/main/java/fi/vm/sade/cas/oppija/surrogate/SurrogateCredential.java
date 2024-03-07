@@ -1,6 +1,7 @@
 package fi.vm.sade.cas.oppija.surrogate;
 
 import org.apereo.cas.authentication.Credential;
+import org.apereo.cas.authentication.CredentialMetadata;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,11 @@ public class SurrogateCredential implements Credential {
         return token;
     }
 
+    @Override
+    public CredentialMetadata getCredentialMetadata() {
+        return null;
+    }
+
 
     public String getCode() {
         return code;
@@ -35,5 +41,4 @@ public class SurrogateCredential implements Credential {
     public void setAuthenticationAttributes(Map<String, List<Object>> authenticationAttributes) {
         this.authenticationAttributes = authenticationAttributes;
     }
-
 }
