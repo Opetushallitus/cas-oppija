@@ -32,15 +32,17 @@ spring.datasource.password: {{ cas_oppija_postgres_password }}
 
 cas.authn.pac4j.saml:
   - client-name: ${cas.custom.properties.suomiFiClientName}
+    metadata:
+      identity-provider-metadata-path: {{ cas_oppija_suomifi_identity_provider_metadata_path }}
+      service-provider:
+        file-system:
+          location: {{ cas_oppija_suomifi_service_provider_metadata_path }}
     auto-redirect-type: {{ cas_oppija_fakesuomifi_auto_redirect_type | default('CLIENT') }}
     keystore-path: {{ cas_oppija_suomifi_keystore_path }}
     keystore-password: {{ cas_oppija_suomifi_keystore_password }}
-    keystore-alias: {{ cas_oppija_suomifi_keystore_alias }}
     private-key-password: {{ cas_oppija_suomifi_private_key_password }}
     service-provider-entity-id: {{ cas_oppija_suomifi_service_provider_entity_id }}
-    service-provider-metadata-path: {{ cas_oppija_suomifi_service_provider_metadata_path }}
-    identity-provider-metadata-path: {{ cas_oppija_suomifi_identity_provider_metadata_path }}
-    principal-attribute-id: nationalIdentificationNumber
+    principal-id-attribute: nationalIdentificationNumber
     requested-attributes:
       - name: urn:oid:1.2.246.21
         friendly-name: nationalIdentificationNumber
@@ -54,16 +56,18 @@ cas.authn.pac4j.saml:
       - personName->urn:oid:2.5.4.3
 {% if cas_oppija_enable_fakesuomifi == true %}
   - client-name: ${cas.custom.properties.fakeSuomiFiClientName}
+    metadata:
+      identity-provider-metadata-path: {{ cas_oppija_fakesuomifi_identity_provider_metadata_path }}
+      service-provider:
+        file-system:
+          location: {{ cas_oppija_fakesuomifi_service_provider_metadata_path }}
     auto-redirect-type: {{ cas_oppija_fakesuomifi_auto_redirect_type | default('CLIENT') }}
     keystore-path: {{ cas_oppija_fakesuomifi_keystore_path }}
     keystore-password: {{ cas_oppija_suomifi_keystore_password }}
-    keystore-alias: {{ cas_oppija_suomifi_keystore_alias }}
     private-key-password: {{ cas_oppija_suomifi_private_key_password }}
     service-provider-entity-id: {{ cas_oppija_fakesuomifi_service_provider_entity_id }}
-    service-provider-metadata-path: {{ cas_oppija_fakesuomifi_service_provider_metadata_path }}
-    identity-provider-metadata-path: {{ cas_oppija_fakesuomifi_identity_provider_metadata_path }}
     wants-assertions-signed: false
-    principal-attribute-id: nationalIdentificationNumber
+    principal-id-attribute: nationalIdentificationNumber
     requested-attributes:
       - name: urn:oid:1.2.246.21
         friendly-name: nationalIdentificationNumber
