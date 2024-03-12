@@ -50,6 +50,7 @@ import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_INQUIRE_INTER
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanConfigurer {
+    public static final int INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE = Ordered.HIGHEST_PRECEDENCE + 10;
 
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
@@ -85,6 +86,8 @@ public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanCon
                 TransitionSet transitions = serviceTicketActionState.getTransitionSet();
                 transitions.add(createTransition(TRANSITION_ID_VALTUUDET_INTERRUPT , STATE_ID_VALTUUDET_INTERRUPT_ACTION));
             }
+
+            @Override public int getOrder() { return INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE + 1; }
         });
         plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
@@ -95,6 +98,8 @@ public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanCon
                 clear(actions, actions::remove);
                 actions.add(super.createEvaluateAction(CasWebflowConstants.ACTION_ID_CREATE_TICKET_GRANTING_TICKET));
             }
+
+            @Override public int getOrder() { return INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE + 1; }
         });
 
     }
@@ -105,15 +110,9 @@ public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanCon
 
     @Bean
     public CasWebflowConfigurer interruptWebflowConfigurer() {
-        return new InterruptWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
-            @Override
-            public int getOrder() {
-                // This CasWebflowExecutionPlanConfigurer must be run before DelegatedAuthenticationConfiguration to enable
-                // surrogate authentication after delegated authentication
-                return Ordered.HIGHEST_PRECEDENCE;
-            }
-        };
-
+        var interruptWebflowConfigurer = new InterruptWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties);
+        interruptWebflowConfigurer.setOrder(INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE);
+        return interruptWebflowConfigurer;
     }
 
     // TODO this should maybe be moved to an own file and moved to actions package.
