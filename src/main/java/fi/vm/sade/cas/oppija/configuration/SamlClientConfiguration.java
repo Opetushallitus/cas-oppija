@@ -28,6 +28,7 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.pac4j.core.client.BaseClient;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.client.IndirectClient;
+import org.pac4j.core.config.Config;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.logout.handler.SessionLogoutHandler;
@@ -167,7 +168,8 @@ public class SamlClientConfiguration {
                         configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
                         configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
                         configuration.setSpLogoutRequestSigned(true);
-                        client.getConfig().setSessionLogoutHandler(new NoOpSessionLogoutHandler());
+                        var clientConfig = Optional.ofNullable(client.getConfig()).orElseGet(() -> new Config(client));
+                        clientConfig.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
                         configuration.setAuthnRequestExtensions(createExtensions());
                         client.init();
                     }
