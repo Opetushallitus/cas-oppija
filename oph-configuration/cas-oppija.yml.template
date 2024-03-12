@@ -30,6 +30,8 @@ cas.webflow.crypto:
 spring.datasource.url: jdbc:postgresql://{{ cas_oppija_postgres_host }}:{{ cas_oppija_postgres_port }}/{{ cas_oppija_postgres_db }}
 spring.datasource.password: {{ cas_oppija_postgres_password }}
 
+cas.custom.properties.suomiFiKeystoreAlias: {{ cas_oppija_suomifi_keystore_alias }}
+cas.custom.properties.fakeSuomiFiKeystoreAlias: {{ cas_oppija_suomifi_keystore_alias }}
 cas.authn.pac4j.saml:
   - client-name: ${cas.custom.properties.suomiFiClientName}
     metadata:
