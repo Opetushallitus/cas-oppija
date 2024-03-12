@@ -20,6 +20,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
+        <AsyncLogger name="org.springframework.beans.factory" level="trace"/>
         <AsyncLogger name="org.apereo.cas" level="debug" />
         <AsyncLogger name="fi.vm" level="debug" />
         <AsyncRoot level="info">
