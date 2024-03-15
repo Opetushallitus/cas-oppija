@@ -31,16 +31,12 @@ public class SurrogateAuthenticationWebflowConfigurer extends AbstractCasWebflow
     private static final String STATE_ID_SURROGATE_ACTION = "surrogateAuthenticationAction";
     private static final String STATE_ID_SURROGATE_CANCEL = "surrogateAuthenticationCancel";
 
-    private final SurrogateAuthenticationAction surrogateAuthenticationAction;
-
     public SurrogateAuthenticationWebflowConfigurer(FlowBuilderServices flowBuilderServices,
                                                     @Qualifier("loginFlowRegistry") FlowDefinitionRegistry loginFlowDefinitionRegistry,
                                                     ConfigurableApplicationContext applicationContext,
-                                                    CasConfigurationProperties casProperties,
-                                                    @Lazy
-                                                    SurrogateAuthenticationAction surrogateAuthenticationAction) {
+                                                    CasConfigurationProperties casProperties
+    ) {
         super(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties);
-        this.surrogateAuthenticationAction = surrogateAuthenticationAction;
     }
 
     @Override
@@ -72,7 +68,7 @@ public class SurrogateAuthenticationWebflowConfigurer extends AbstractCasWebflow
         /*
         Create STATE_ID_SURROGATE_ACTION and its transitions so that it will continue cas own flow afterwards.
          */
-        ActionState actionState = super.createActionState(loginFlow, STATE_ID_SURROGATE_ACTION, surrogateAuthenticationAction);
+        ActionState actionState = super.createActionState(loginFlow, STATE_ID_SURROGATE_ACTION, SurrogateAuthenticationAction.BEAN_NAME);
         super.createTransitionForState(actionState, CasWebflowConstants.TRANSITION_ID_SUCCESS,
                 CasWebflowConstants.STATE_ID_CREATE_TICKET_GRANTING_TICKET);
         super.createTransitionForState(actionState, CasWebflowConstants.TRANSITION_ID_CANCEL, cancelState.getId());

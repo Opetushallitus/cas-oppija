@@ -15,8 +15,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import static fi.vm.sade.cas.oppija.surrogate.SurrogateConstants.CODE_PARAMETER_NAME;
 import static fi.vm.sade.cas.oppija.surrogate.SurrogateConstants.TOKEN_PARAMETER_NAME;
 
-@Component
+@Component(SurrogateAuthenticationAction.BEAN_NAME)
 public class SurrogateAuthenticationAction extends AbstractNonInteractiveCredentialsAction {
+    public static final String BEAN_NAME = "surrogateAuthenticationAction";
 
     public SurrogateAuthenticationAction(CasDelegatingWebflowEventResolver initialAuthenticationAttemptWebflowEventResolver,
                                          CasWebflowEventResolver serviceTicketRequestWebflowEventResolver,
