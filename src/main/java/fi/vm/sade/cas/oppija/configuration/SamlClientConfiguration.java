@@ -160,12 +160,15 @@ public class SamlClientConfiguration {
         return new BaseDelegatedIdentityProviderFactory(casProperties, customizers, casSSLContext, samlMessageStoreFactory, clientsCache) {
             @Override
             protected Collection<IndirectClient> loadIdentityProviders() throws Exception {
+                LOGGER.info("Loading Identity Providers");
                 Collection<IndirectClient> clients = buildSaml2IdentityProviders(casProperties);
                 Map<String, String> customProperties = casProperties.getCustom().getProperties();
                 for (IndirectClient client : clients) {
+                    LOGGER.info("Loading identity provider: {}", client.getName());
                     var isSuomiFi = Objects.equals(customProperties.get("suomiFiClientName"), client.getName());
                     var isFakeSuomiFi = Objects.equals(customProperties.get("fakeSuomiFiClientName"), client.getName());
                     if (client instanceof SAML2Client saml2Client && (isSuomiFi || isFakeSuomiFi)) {
+                        LOGGER.info("Configuring SAML2Client: {} for {}", client.getName(), isSuomiFi ? "Suomi.fi" : "Fake Suomi.fi");
                         SAML2Configuration configuration = saml2Client.getConfiguration();
                         if (isSuomiFi) configuration.setKeyStoreAlias(customProperties.get("suomiFiKeystoreAlias"));
                         if (isFakeSuomiFi) configuration.setKeyStoreAlias(customProperties.get("fakeSuomiFiKeystoreAlias"));

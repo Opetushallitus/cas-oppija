@@ -39,12 +39,14 @@ public class DelegatedAuthenticationActionConfiguration {
             @Override
             public Event doExecuteInternal(RequestContext context) {
                 try {
+                    LOGGER.info("Executing DelegatedClientAuthenticationAction");
                     HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
                     HttpServletResponse response = WebUtils.getHttpServletResponseFromExternalWebflowContext(context);
                     JEEContext webContext = new JEEContext(request, response);
                     String clientName = this.retrieveClientName(webContext);
                     Optional<ClientCredential> clientCredential = this.extractClientCredential(context, clientName);
                     if (isLogoutRequest(clientCredential)) {
+                        LOGGER.info("returning result(CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT)");
                         return result(CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT);
                     }
                     return super.doExecuteInternal(context);

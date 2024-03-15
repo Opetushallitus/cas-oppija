@@ -1,6 +1,7 @@
 package fi.vm.sade.cas.oppija.configuration.webflow;
 
 import fi.vm.sade.cas.oppija.configuration.action.SurrogateAuthenticationAction;
+import lombok.extern.slf4j.Slf4j;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.CasWebflowConfigurer;
 import org.apereo.cas.web.flow.CasWebflowConstants;
@@ -21,6 +22,7 @@ import static fi.vm.sade.cas.oppija.surrogate.SurrogateConstants.CODE_PARAMETER_
 import static fi.vm.sade.cas.oppija.surrogate.SurrogateConstants.TOKEN_PARAMETER_NAME;
 import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_HANDLE_AUTHN_FAILURE;
 
+@Slf4j
 @Component
 public class SurrogateAuthenticationWebflowConfigurer extends AbstractCasWebflowConfigurer {
 
@@ -43,6 +45,8 @@ public class SurrogateAuthenticationWebflowConfigurer extends AbstractCasWebflow
 
     @Override
     protected void doInitialize() {
+        LOGGER.info("Initialzing {}", getClass().getSimpleName());
+
         Flow loginFlow = super.getLoginFlow();
         StateDefinition originalStartState = loginFlow.getStartState();
         /* This is the flow for returning from Valtuuded service.
