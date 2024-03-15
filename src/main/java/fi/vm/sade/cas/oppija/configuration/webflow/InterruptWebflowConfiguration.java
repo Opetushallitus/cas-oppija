@@ -50,7 +50,7 @@ import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_INQUIRE_INTER
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanConfigurer {
-    public static final int INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE = Ordered.HIGHEST_PRECEDENCE + 10;
+    public static final int INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE = Ordered.HIGHEST_PRECEDENCE + 1;
 
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
