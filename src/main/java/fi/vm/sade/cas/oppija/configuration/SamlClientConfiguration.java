@@ -172,8 +172,6 @@ public class SamlClientConfiguration {
                         configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
                         configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
                         configuration.setSpLogoutRequestSigned(true);
-                        var clientConfig = Optional.ofNullable(client.getConfig()).orElseGet(() -> new Config(client));
-                        clientConfig.setSessionLogoutHandler(new NoOpSessionLogoutHandler());
                         configuration.setAuthnRequestExtensions(createExtensions());
                         client.init();
                     }
