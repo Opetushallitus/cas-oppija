@@ -20,6 +20,7 @@ public class StoreServiceParamAction extends AbstractServiceParamAction {
 
     @Override
     protected Event doExecuteInternal(RequestContext requestContext) {
+        LOGGER.info("Executing {}", getClass().getSimpleName());
         var request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
         var response = WebUtils.getHttpServletResponseFromExternalWebflowContext(requestContext);
         var service = casProperties.getLogout().getRedirectParameter().stream()
@@ -28,10 +29,12 @@ public class StoreServiceParamAction extends AbstractServiceParamAction {
                 .findFirst()
                 .orElse(null);
         if (service != null) {
+            LOGGER.info("Setting service redirect cookie to value: {}", service);
             setServiceRedirectCookie(response, service);
-            LOGGER.debug("Set service redirect cookie to value: " + service);
         } else {
-            setServiceRedirectCookie(response, casProperties.getLogout().getRedirectUrl());
+            service = casProperties.getLogout().getRedirectUrl();
+            LOGGER.info("Setting service redirect cookie to default value: {}", service);
+            setServiceRedirectCookie(response, service);
         }
         return null;
     }

@@ -165,16 +165,19 @@ public class SamlClientConfiguration {
                 Map<String, String> customProperties = casProperties.getCustom().getProperties();
                 for (IndirectClient client : clients) {
                     LOGGER.info("Loading identity provider: {}", client.getName());
-                    var isSuomiFi = Objects.equals(customProperties.get("suomiFiClientName"), client.getName());
-                    var isFakeSuomiFi = Objects.equals(customProperties.get("fakeSuomiFiClientName"), client.getName());
-                    if (client instanceof SAML2Client saml2Client && (isSuomiFi || isFakeSuomiFi)) {
-                        LOGGER.info("Configuring SAML2Client: {} for {}", client.getName(), isSuomiFi ? "Suomi.fi" : "Fake Suomi.fi");
+                    if (client instanceof SAML2Client saml2Client) {
                         SAML2Configuration configuration = saml2Client.getConfiguration();
-                        if (isSuomiFi) configuration.setKeyStoreAlias(customProperties.get("suomiFiKeystoreAlias"));
-                        if (isFakeSuomiFi) configuration.setKeyStoreAlias(customProperties.get("fakeSuomiFiKeystoreAlias"));
+                        LOGGER.info("Configuring SAML2Client: {}", client.getName());
+
+                        if (Objects.equals(customProperties.get("suomiFiClientName"), client.getName())) {
+                            configuration.setKeyStoreAlias(customProperties.get("suomiFiKeystoreAlias"));
+                        } else if (Objects.equals(customProperties.get("fakeSuomiFiClientName"), client.getName())) {
+                            configuration.setKeyStoreAlias(customProperties.get("fakeSuomiFiKeystoreAlias"));
+                        }
                         configuration.setSpLogoutRequestBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
                         configuration.setSpLogoutResponseBindingType(SAMLConstants.SAML2_REDIRECT_BINDING_URI);
                         configuration.setSpLogoutRequestSigned(true);
+                        // TODO: configuration.setLogoutHandler(new LogoutHandler() {});
                         configuration.setAuthnRequestExtensions(createExtensions());
                         client.init();
                     }
