@@ -13,7 +13,7 @@ import org.apereo.cas.web.flow.CasWebflowExecutionPlanConfigurer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class SurrogateConfiguration implements CasWebflowExecutionPlanConfigurer, AuthenticationEventExecutionPlanConfigurer {
 
     @Autowired
