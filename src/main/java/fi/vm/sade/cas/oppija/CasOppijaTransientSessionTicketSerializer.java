@@ -11,6 +11,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -110,5 +111,17 @@ public class CasOppijaTransientSessionTicketSerializer implements StringSerializ
     public List<TransientSessionTicketImpl> fromList(String s) {
         byte[] bytes = decoder.decode(s.getBytes(StandardCharsets.UTF_8));
         return SerializationUtils.deserialize(bytes, List.class);
+    }
+
+    @Override
+    public String fromList(Collection<TransientSessionTicketImpl> json) {
+        // this is not used for ticket serialization
+        return null;
+    }
+
+    @Override
+    public TransientSessionTicketImpl merge(TransientSessionTicketImpl baseEntity, TransientSessionTicketImpl childEntity) {
+        // this is not used for ticket serialization
+        return null;
     }
 }

@@ -7,11 +7,15 @@
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
-            <ThresholdFilter level="debug" />
         </Console>
     </Appenders>
     <Loggers>
+        <!--
+        <AsyncLogger name="org.springframework.beans.factory" level="trace"/>
+        -->
+        <AsyncLogger name="org.springframework.webflow.engine" level="trace"/>
         <AsyncLogger name="org.apereo.cas" level="debug"/>
+        <AsyncLogger name="org.pac4j.saml" level="debug"/>
         <AsyncLogger name="fi.vm" level="debug"/>
         <AsyncRoot level="info">
             <AppenderRef ref="console"/>

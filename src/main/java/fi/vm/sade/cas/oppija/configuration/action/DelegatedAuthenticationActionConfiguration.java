@@ -1,20 +1,29 @@
 package fi.vm.sade.cas.oppija.configuration.action;
 
 import fi.vm.sade.cas.oppija.CasOppijaConstants;
+import fi.vm.sade.cas.oppija.CasOppijaUtils;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apereo.cas.authentication.principal.ClientCredential;
 import org.apereo.cas.pac4j.client.DelegatedClientAuthenticationFailureEvaluator;
+import org.apereo.cas.util.LoggingUtils;
 import org.apereo.cas.web.flow.CasWebflowConstants;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationConfigurationContext;
 import org.apereo.cas.web.flow.DelegatedClientAuthenticationWebflowManager;
 import org.apereo.cas.web.flow.actions.DelegatedClientAuthenticationAction;
 import org.apereo.cas.web.support.WebUtils;
+import org.pac4j.jee.context.JEEContext;
 import org.pac4j.saml.exceptions.SAMLException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.webflow.execution.Action;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.Optional;
 
 @Configuration
 public class DelegatedAuthenticationActionConfiguration {
@@ -26,21 +35,13 @@ public class DelegatedAuthenticationActionConfiguration {
             final DelegatedClientAuthenticationFailureEvaluator failureEvaluator
     ) {
         return new DelegatedClientAuthenticationAction(context, delegatedClientAuthenticationWebflowManager, failureEvaluator) {
+            private static final Logger LOGGER = LoggerFactory.getLogger(DelegatedAuthenticationActionConfiguration.class);
             @Override
-            public Event doExecute(RequestContext requestContext) {
-                HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(requestContext);
-                if (isLogoutRequest(request)) {
-                    return result(CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT);
-                }
-                return super.doExecute(requestContext);
-            }
-
-            @Override
-            protected Event stopWebflow(Exception e, RequestContext requestContext) {
-                if (e instanceof SAMLException) {
-                    return result(CasWebflowConstants.TRANSITION_ID_CANCEL);
-                }
-                return super.stopWebflow(e, requestContext);
+            public Event doExecuteInternal(RequestContext context) {
+                LOGGER.info("Executing DelegatedClientAuthenticationAction");
+                var event = super.doExecuteInternal(context);
+                LOGGER.info("Event: {}", event);
+                return event;
             }
         };
     }

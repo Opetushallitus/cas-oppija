@@ -43,13 +43,6 @@ cas:
   warning-cookie:
     secure: false
     path: /cas-oppija
-  monitor:
-    endpoints:
-      endpoint:
-        health:
-          access: PERMIT
-        springWebflow:
-          access: PERMIT
   webflow:
     session:
       storage: true
@@ -72,19 +65,6 @@ cas.ticket.registry.jpa.user: ${spring.datasource.username}
 cas.ticket.registry.jpa.password: ${spring.datasource.password}
 
 cas.service-registry.json.location: classpath:/opintopolku-1.json
-
-management:
-  endpoints:
-    web:
-     exposure:
-      include:
-       - springWebflow
-       - health
-  endpoint:
-    health:
-      enabled: true
-    springWebflow:
-      enabled: true
 
 # Spring Boot configuration
 # https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
@@ -133,7 +113,12 @@ service-user.username: user
 service-user.password: pass
 
 #implementation "org.apereo.cas:cas-server-support-reports:${project.'cas.version'}"
-management.endpoint.springWebflow.enabled: true
 #cas.monitor.endpoints.endpoint.springWebflow.access: IP_ADDRESS
 #cas.monitor.endpoints.endpoint.springWebflow.required-ip-addresses: 127.0.0.1
 
+# Spring Actuator endpoints
+management.endpoints.web.exposure.include: health,springWebflow
+management.endpoint.health.enabled: true
+management.endpoint.springWebflow.enabled: true
+cas.monitor.endpoints.endpoint.health.access: PERMIT
+cas.monitor.endpoints.endpoint.springWebflow.access: PERMIT

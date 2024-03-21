@@ -8,7 +8,6 @@ import fi.vm.sade.cas.oppija.configuration.action.StoreServiceParamAction;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.web.flow.*;
 import org.apereo.cas.web.flow.configurer.AbstractCasWebflowConfigurer;
-import org.pac4j.core.client.Clients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,45 +39,23 @@ public class DelegatedAuthenticationWebflowConfiguration implements CasWebflowEx
     private final FlowDefinitionRegistry delegationRedirectFlowRegistry;
     private final ConfigurableApplicationContext applicationContext;
     private final CasConfigurationProperties casProperties;
-    private final Clients clients;
 
     public DelegatedAuthenticationWebflowConfiguration(FlowBuilderServices flowBuilderServices,
                                                        @Qualifier(CasWebflowConstants.BEAN_NAME_LOGIN_FLOW_DEFINITION_REGISTRY) FlowDefinitionRegistry loginFlowDefinitionRegistry,
                                                        @Qualifier(CasWebflowConstants.BEAN_NAME_LOGOUT_FLOW_DEFINITION_REGISTRY) FlowDefinitionRegistry logoutFlowDefinitionRegistry,
                                                        @Qualifier("delegatedClientRedirectFlowRegistry") FlowDefinitionRegistry delegationRedirectFlowRegistry,
                                                        ConfigurableApplicationContext applicationContext,
-                                                       CasConfigurationProperties casProperties,
-                                                       Clients clients) {
+                                                       CasConfigurationProperties casProperties
+    ) {
         this.flowBuilderServices = flowBuilderServices;
         this.loginFlowDefinitionRegistry = loginFlowDefinitionRegistry;
         this.logoutFlowDefinitionRegistry = logoutFlowDefinitionRegistry;
         this.delegationRedirectFlowRegistry = delegationRedirectFlowRegistry;
         this.applicationContext = applicationContext;
         this.casProperties = casProperties;
-        this.clients = clients;
     }
 
-    @Bean
-    public CasWebflowConfigurer delegatedAuthenticationWebflowConfigurer() {
-        return new DelegatedAuthenticationWebflowConfigurer(
-                flowBuilderServices, loginFlowDefinitionRegistry,
-                logoutFlowDefinitionRegistry, delegationRedirectFlowRegistry, applicationContext, casProperties
-        )
-        {
 
-            @Override
-            public int getOrder() {
-                // This CasWebflowExecutionPlanConfigurer must be run before SurrogateConfiguration to able to cancel auth
-                // but after InterruptConfiguration to enable surrogate authentication after delegated authentication
-                return Ordered.HIGHEST_PRECEDENCE + 1;
-            }
-        };
-    }
-
-    @Bean
-    Pac4jClientProvider clientProvider() {
-        return new Pac4jClientProvider(clients);
-    }
 
     @Override
     public void configureWebflowExecutionPlan(CasWebflowExecutionPlan plan) {
@@ -112,6 +89,11 @@ public class DelegatedAuthenticationWebflowConfiguration implements CasWebflowEx
                 //Logout flow starts from terminate session state, Here we add the storage of return url action to a cookie when logout starts
                 setLogoutFlowDefinitionRegistry(DelegatedAuthenticationWebflowConfiguration.this.logoutFlowDefinitionRegistry);
                 getLogoutFlow().getStartActionList().add(new StoreServiceParamAction(casProperties));
+            }
+
+            @Override
+            public int getOrder() {
+                return Ordered.LOWEST_PRECEDENCE;
             }
         });
     }

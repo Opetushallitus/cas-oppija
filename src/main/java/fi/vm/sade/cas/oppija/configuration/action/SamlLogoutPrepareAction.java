@@ -11,7 +11,7 @@ import org.pac4j.saml.profile.SAML2Profile;
 import org.springframework.webflow.execution.Event;
 import org.springframework.webflow.execution.RequestContext;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +40,7 @@ public class SamlLogoutPrepareAction extends BaseCasWebflowAction {
     }
 
     @Override
-    protected Event doExecute(RequestContext context) throws Exception {
+    protected Event doExecuteInternal(RequestContext context) throws Throwable {
         Authentication authentication = getAuthentication(context);
         if (authentication != null) {
             SAML2Profile profile = new SAML2Profile();

@@ -5,6 +5,7 @@ import fi.vm.sade.cas.oppija.configuration.InterruptInquiryExecutionPlanConfigur
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.interrupt.InterruptInquirer;
 import org.apereo.cas.interrupt.InterruptResponse;
+import org.apereo.cas.interrupt.InterruptTrackingEngine;
 import org.apereo.cas.interrupt.webflow.InterruptUtils;
 import org.apereo.cas.interrupt.webflow.InterruptWebflowConfigurer;
 import org.apereo.cas.interrupt.webflow.actions.InquireInterruptAction;
@@ -49,25 +50,26 @@ import static org.apereo.cas.web.flow.CasWebflowConstants.STATE_ID_INQUIRE_INTER
 @Configuration
 @EnableConfigurationProperties(CasConfigurationProperties.class)
 public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanConfigurer {
+    public static final int INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE = Ordered.HIGHEST_PRECEDENCE + 1;
 
     private final FlowBuilderServices flowBuilderServices;
     private final FlowDefinitionRegistry loginFlowDefinitionRegistry;
     private final ConfigurableApplicationContext applicationContext;
     private final CasConfigurationProperties casProperties;
-    private final CasCookieBuilder ticketGrantingTicketCookieGenerator;
+    private final InterruptTrackingEngine interruptTrackingEngine;
 
     public InterruptWebflowConfiguration(FlowBuilderServices flowBuilderServices,
                                          @Qualifier("loginFlowRegistry") FlowDefinitionRegistry loginFlowDefinitionRegistry,
                                          ConfigurableApplicationContext applicationContext,
                                          CasConfigurationProperties casProperties,
-                                         @Qualifier("ticketGrantingTicketCookieGenerator")
-                                  CasCookieBuilder ticketGrantingTicketCookieGenerator
+                                         @Qualifier(InterruptTrackingEngine.BEAN_NAME)
+                                         final InterruptTrackingEngine interruptTrackingEngine
     ) {
         this.flowBuilderServices = flowBuilderServices;
         this.loginFlowDefinitionRegistry = loginFlowDefinitionRegistry;
         this.applicationContext = applicationContext;
         this.casProperties = casProperties;
-        this.ticketGrantingTicketCookieGenerator = ticketGrantingTicketCookieGenerator;
+        this.interruptTrackingEngine = interruptTrackingEngine;
     }
 
     @Override
@@ -84,6 +86,8 @@ public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanCon
                 TransitionSet transitions = serviceTicketActionState.getTransitionSet();
                 transitions.add(createTransition(TRANSITION_ID_VALTUUDET_INTERRUPT , STATE_ID_VALTUUDET_INTERRUPT_ACTION));
             }
+
+            @Override public int getOrder() { return INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE + 1; }
         });
         plan.registerWebflowConfigurer(new AbstractCasWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
             @Override
@@ -94,6 +98,8 @@ public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanCon
                 clear(actions, actions::remove);
                 actions.add(super.createEvaluateAction(CasWebflowConstants.ACTION_ID_CREATE_TICKET_GRANTING_TICKET));
             }
+
+            @Override public int getOrder() { return INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE + 1; }
         });
 
     }
@@ -104,25 +110,19 @@ public class InterruptWebflowConfiguration implements CasWebflowExecutionPlanCon
 
     @Bean
     public CasWebflowConfigurer interruptWebflowConfigurer() {
-        return new InterruptWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties) {
-            @Override
-            public int getOrder() {
-                // This CasWebflowExecutionPlanConfigurer must be run before DelegatedAuthenticationConfiguration to enable
-                // surrogate authentication after delegated authentication
-                return Ordered.HIGHEST_PRECEDENCE;
-            }
-        };
-
+        var interruptWebflowConfigurer = new InterruptWebflowConfigurer(flowBuilderServices, loginFlowDefinitionRegistry, applicationContext, casProperties);
+        interruptWebflowConfigurer.setOrder(INTERRUPT_WEBFLOW_CONFIGURER_PRECEDENCE);
+        return interruptWebflowConfigurer;
     }
 
     // TODO this should maybe be moved to an own file and moved to actions package.
     // override default inquireInterruptAction to add new interruptRedirect transition
     @Bean
     public InquireInterruptAction inquireInterruptAction(List<InterruptInquirer> interruptInquirers) {
-        return new InquireInterruptAction(interruptInquirers, casProperties, ticketGrantingTicketCookieGenerator) {
+        return new InquireInterruptAction(interruptInquirers, casProperties, interruptTrackingEngine) {
             @Override
-            protected Event doExecute(RequestContext requestContext) {
-                Event event = super.doExecute(requestContext);
+            protected Event doExecuteInternal(RequestContext requestContext) throws Throwable {
+                Event event = super.doExecuteInternal(requestContext);
                 if (CasWebflowConstants.TRANSITION_ID_INTERRUPT_REQUIRED.equals(event.getId())) {
                     InterruptResponse interruptResponse = InterruptUtils.getInterruptFrom(requestContext);
                     if (interruptResponse.isAutoRedirect() && interruptResponse.getAutoRedirectAfterSeconds() < 0

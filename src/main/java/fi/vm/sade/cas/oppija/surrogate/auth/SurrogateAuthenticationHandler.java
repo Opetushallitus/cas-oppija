@@ -5,7 +5,7 @@ import fi.vm.sade.cas.oppija.surrogate.SurrogateAuthenticationDto;
 import fi.vm.sade.cas.oppija.surrogate.SurrogateCredential;
 import fi.vm.sade.cas.oppija.surrogate.SurrogateService;
 import org.apereo.cas.authentication.*;
-import org.apereo.cas.authentication.metadata.BasicCredentialMetaData;
+import org.apereo.cas.authentication.metadata.BasicCredentialMetadata;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalFactory;
 import org.apereo.cas.authentication.principal.Service;
@@ -56,12 +56,12 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
             SurrogateAuthenticationDto dto = surrogateService.getAuthentication(credential.getId(), credential.getCode());
             credential.setAuthenticationAttributes(dto.impersonatorData.authenticationAttributes);
             return createHandlerResult(credential, createPrincipal(dto));
-        } catch (Exception e) {
-            throw new PreventedException(e);
+        } catch (Throwable t) {
+            throw new PreventedException(t);
         }
     }
 
-    private Principal createPrincipal(SurrogateAuthenticationDto dto) {
+    private Principal createPrincipal(SurrogateAuthenticationDto dto) throws Throwable {
         String id = dto.impersonatorData.principalId + ":" + dto.nationalIdentificationNumber;
         Map<String, List<Object>> attributes = new LinkedHashMap<>();
         dto.impersonatorData.principalAttributes.entrySet().stream()
@@ -82,7 +82,7 @@ public class SurrogateAuthenticationHandler implements AuthenticationHandler {
     }
 
     private AuthenticationHandlerExecutionResult createHandlerResult(SurrogateCredential credential, Principal principal) {
-        return new DefaultAuthenticationHandlerExecutionResult(this, new BasicCredentialMetaData(credential), principal);
+        return new DefaultAuthenticationHandlerExecutionResult(this, credential, principal);
     }
 
 }
