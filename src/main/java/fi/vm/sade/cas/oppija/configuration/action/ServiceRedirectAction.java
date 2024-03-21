@@ -13,9 +13,6 @@ import org.springframework.webflow.execution.RequestContext;
 
 @Slf4j
 public class ServiceRedirectAction extends AbstractServiceParamAction {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceRedirectAction.class);
-
     public ServiceRedirectAction() {
 
     }
@@ -31,6 +28,8 @@ public class ServiceRedirectAction extends AbstractServiceParamAction {
             LOGGER.info("Found service redirect cookie, setting logout redirect url ({}) and clearing the cookie", service);
             clearServiceRedirectCookie(response);
             JEEHttpActionAdapter.INSTANCE.adapt(new FoundAction(service), webContext);
+        } else {
+            LOGGER.info("No service redirect cookie found");
         }
         return success();
     }

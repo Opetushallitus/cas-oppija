@@ -38,34 +38,10 @@ public class DelegatedAuthenticationActionConfiguration {
             private static final Logger LOGGER = LoggerFactory.getLogger(DelegatedAuthenticationActionConfiguration.class);
             @Override
             public Event doExecuteInternal(RequestContext context) {
-                try {
-                    LOGGER.info("Executing DelegatedClientAuthenticationAction");
-                    HttpServletRequest request = WebUtils.getHttpServletRequestFromExternalWebflowContext(context);
-                    HttpServletResponse response = WebUtils.getHttpServletResponseFromExternalWebflowContext(context);
-                    JEEContext webContext = new JEEContext(request, response);
-                    String clientName = this.retrieveClientName(webContext);
-                    Optional<ClientCredential> clientCredential = this.extractClientCredential(context, clientName);
-                    if (isLogoutRequest(clientCredential)) {
-                        LOGGER.info("returning result(CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT)");
-                        return result(CasOppijaConstants.TRANSITION_ID_IDP_LOGOUT);
-                    }
-                    return super.doExecuteInternal(context);
-                } catch (Throwable t) {
-                    LoggingUtils.error(LOGGER, t);
-                    return this.stopWebflow(t, context);
-                }
-            }
-
-            private boolean isLogoutRequest(final Optional<ClientCredential> clientCredential) {
-                return clientCredential.isPresent() && !((ClientCredential)clientCredential.get()).getCredentials().isForAuthentication();
-            }
-
-            @Override
-            protected Event stopWebflow(Throwable t, RequestContext requestContext) {
-                if (t instanceof SAMLException) {
-                    return result(CasWebflowConstants.TRANSITION_ID_CANCEL);
-                }
-                return super.stopWebflow(t, requestContext);
+                LOGGER.info("Executing DelegatedClientAuthenticationAction");
+                var event = super.doExecuteInternal(context);
+                LOGGER.info("Event: {}", event);
+                return event;
             }
         };
     }
