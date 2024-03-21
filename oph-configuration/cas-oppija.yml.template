@@ -56,32 +56,6 @@ cas.authn.pac4j.saml:
         required: true
     mapped-attributes:
       - personName->urn:oid:2.5.4.3
-{% if cas_oppija_enable_fakesuomifi == true %}
-  - client-name: ${cas.custom.properties.fakeSuomiFiClientName}
-    metadata:
-      identity-provider-metadata-path: {{ cas_oppija_fakesuomifi_identity_provider_metadata_path }}
-      service-provider:
-        file-system:
-          location: {{ cas_oppija_fakesuomifi_service_provider_metadata_path }}
-    auto-redirect-type: {{ cas_oppija_fakesuomifi_auto_redirect_type | default('CLIENT') }}
-    keystore-path: {{ cas_oppija_fakesuomifi_keystore_path }}
-    keystore-password: {{ cas_oppija_suomifi_keystore_password }}
-    private-key-password: {{ cas_oppija_suomifi_private_key_password }}
-    service-provider-entity-id: {{ cas_oppija_fakesuomifi_service_provider_entity_id }}
-    wants-assertions-signed: false
-    principal-id-attribute: nationalIdentificationNumber
-    requested-attributes:
-      - name: urn:oid:1.2.246.21
-        friendly-name: nationalIdentificationNumber
-        name-format: urn:oasis:names:tc:SAML:2.0:attrname-format:uri
-        required: true
-      - name: urn:oid:2.5.4.3
-        friendly-name: cn
-        name-format: urn:oasis:names:tc:SAML:2.0:attrname-format:uri
-        required: true
-    mapped-attributes:
-      - personName->urn:oid:2.5.4.3
-{% endif %}
 
 management.endpoints.web.exposure.include: health,springWebflow
 management.endpoint.springWebflow.enabled: {{ cas_oppija_permit_webflow_json_endpoint | default('false') }}
